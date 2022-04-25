@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 import '../blacklist_helper.dart';
 import '../models/blacklist_object.dart';
 
-// ignore: must_be_immutable
 class EmailEntry extends StatelessWidget
 {
-    EmailEntry(this.sender, this.subject, this.snippet, {Key? key}) : super(key: key);
+    const EmailEntry(this.sender, this.subject, this.snippet, {Key? key}) : super(key: key);
 
-    String sender = "Sender";
-    String subject = "Subject";
-    String snippet = "Snippet";
+    final String sender;
+    final String subject;
+    final String snippet;
 
     @override
     Widget build(BuildContext context) 
