@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:googleapis/gmail/v1.dart';
+import 'gmail_api_helper.dart' as gmail;
+
+import 'email_entry.dart';
 
 void main() 
 {
@@ -19,9 +23,17 @@ class MyApp extends StatelessWidget
     }
 }
 
-class HomePage extends StatelessWidget
+class HomePage extends StatefulWidget
 {
     const HomePage({Key? key}) : super(key: key);
+
+    @override
+    State<StatefulWidget> createState() => HomePageState();
+}
+
+class HomePageState extends State<HomePage>
+{
+    List<Message> _emails = [];
 
     @override
     Widget build(BuildContext context)
@@ -40,7 +52,7 @@ class HomePage extends StatelessWidget
                                     SizedBox(
                                         child: ElevatedButton(
                                             child: const Text("Login"),
-                                            onPressed: () {},
+                                            onPressed: () async => await gmail.login()
                                         ),
                                         height: 40,
                                         width: 150
@@ -48,7 +60,12 @@ class HomePage extends StatelessWidget
                                     SizedBox(
                                         child: ElevatedButton(
                                             child: const Text("Find"),
-                                            onPressed: () {},
+                                            onPressed: () async {
+                                                List<Message> newEmails = await gmail.readEmails();
+                                                setState(() {
+                                                    _emails = newEmails;
+                                                });
+                                            },
                                         ),
                                         height: 40,
                                         width: 150
@@ -71,14 +88,21 @@ class HomePage extends StatelessWidget
                                     const Text("Queued to Delete", style: TextStyle(fontSize: 18)),
                                     const SizedBox(height: 10),
                                     //replace with listview
-                                    Column(
-                                        children: [
-                                            ElevatedButton(onPressed: () {}, child: const Text("Button")),
-                                            ElevatedButton(onPressed: () {}, child: const Text("Button")),
-                                            ElevatedButton(onPressed: () {}, child: const Text("Button")),
-                                            ElevatedButton(onPressed: () {}, child: const Text("Button")),
-                                            ElevatedButton(onPressed: () {}, child: const Text("Button"))
-                                        ],
+                                    Expanded(
+                                      child: ListView.separated(
+                                            itemCount: _emails.length,
+                                            itemBuilder: (context, index) {
+                                                if(_emails.isEmpty) return Container();
+
+                                                Message email = _emails[index];
+                                                return EmailEntry(
+                                                    email.payload!.headers!.where((element) => element.name == "From").first.value!, 
+                                                    email.payload!.headers!.where((element) => element.name == "Subject").first.value!,
+                                                    email.snippet!
+                                                );
+                                            },
+                                            separatorBuilder: (context, index) => Container(height: 1, color: Colors.grey)
+                                      ),
                                     )
                                 ],
                             ),
@@ -87,7 +111,7 @@ class HomePage extends StatelessWidget
                         Expanded(
                             child: Column(
                                 children: [
-                                    const Text("Whitelist", style: TextStyle(fontSize: 18)),
+                                    const Text("Blacklist", style: TextStyle(fontSize: 18)),
                                     const SizedBox(height: 10),
                                     //replace with listview
                                     Expanded(
@@ -102,7 +126,7 @@ class HomePage extends StatelessWidget
                                         ),
                                     ),
                                     ElevatedButton(
-                                        child: const Text("Add to Whitelist"),
+                                        child: const Text("Add to Blacklist"),
                                         onPressed: (){},
                                     )
                                 ],
