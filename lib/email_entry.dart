@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'blacklist_helper.dart';
+import 'models/blacklist_object.dart';
+
 // ignore: must_be_immutable
 class EmailEntry extends StatelessWidget
 {
@@ -12,8 +15,6 @@ class EmailEntry extends StatelessWidget
     @override
     Widget build(BuildContext context) 
     {
-        print(subject);
-
         return Padding(
             padding: const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 10),
             child: Row(
@@ -36,7 +37,11 @@ class EmailEntry extends StatelessWidget
                     ),
                     IconButton(
                         icon: const Icon(Icons.add),
-                        onPressed: (){},
+                        onPressed: () {
+                            String senderEmail = sender.split("<")[1].split(">")[0];
+                            Blacklist.instance.add(BlacklistObject(senderEmail, "user"));
+                            Blacklist.instance.add(BlacklistObject(senderEmail.split("@")[1], "domain"));
+                        },
                     ),
                 ],
             ),

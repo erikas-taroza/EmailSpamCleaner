@@ -3,9 +3,12 @@ import 'package:googleapis/gmail/v1.dart';
 import 'gmail_api_helper.dart' as gmail;
 
 import 'email_entry.dart';
+import 'blacklist_helper.dart';
+import 'models/blacklist_object.dart';
 
 void main() 
 {
+    Blacklist _ = Blacklist.instance;
     runApp(const MyApp());
 }
 
@@ -33,106 +36,186 @@ class HomePage extends StatefulWidget
 
 class HomePageState extends State<HomePage>
 {
-    List<Message> _emails = [];
+    List<EmailEntry> _emails = [];
 
+    Future<List<EmailEntry>> _getEmailsAsEntries() async
+    {
+        List<Message> newEmails = await gmail.readEmails();
+
+        List<EmailEntry> entries = [];
+        for (Message email in newEmails) 
+        {
+            entries.add(
+                EmailEntry(
+                    email.payload!.headers!.where((element) => element.name == "From").first.value!, 
+                    email.payload!.headers!.where((element) => element.name == "Subject").first.value!,
+                    email.snippet!
+                )
+            );
+        }
+
+        return entries;
+    }
+
+    void _showAddBlacklistDialog(BuildContext context)
+    {
+        String value = "";
+
+        showDialog(
+            context: context,
+            builder: (c) => AlertDialog(
+                title: const Text("Add to Blacklist"),
+                content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        const Text("Input should be in either format:\n"),
+                        const Text("user@domain.com"),
+                        const Text("domain.com\n"),
+                        TextField(
+                            decoration: const InputDecoration(hintText: "Value"),
+                            onChanged: (text) => value = text,
+                        ),
+                    ],
+                ),
+                actions: [
+                    TextButton(
+                        child: const Text("CANCEL"),
+                        onPressed: () => Navigator.of(c).pop(),
+                    ),
+                    TextButton(
+                        child: const Text("ADD"),
+                        onPressed: () {
+                            Blacklist.instance.addString(value);
+                            Navigator.of(c).pop();
+                        },
+                    )
+                ],
+            )
+        );
+    }
+
+    //TODO: Refresh page when blacklist item is edited.
     @override
     Widget build(BuildContext context)
     {
+        ScrollController c1 = ScrollController();
+        ScrollController c2 = ScrollController();
+
         return Scaffold(
             appBar: AppBar(title: const Center(child: Text("Email Spam Cleaner")),),
             body: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                     children: [
-                        Expanded(
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                    SizedBox(
-                                        child: ElevatedButton(
-                                            child: const Text("Login"),
-                                            onPressed: () async => await gmail.login()
-                                        ),
-                                        height: 40,
-                                        width: 150
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                                SizedBox(
+                                    child: ElevatedButton(
+                                        child: const Text("Login"),
+                                        onPressed: () async => await gmail.login()
                                     ),
-                                    SizedBox(
-                                        child: ElevatedButton(
-                                            child: const Text("Find"),
-                                            onPressed: () async {
-                                                List<Message> newEmails = await gmail.readEmails();
-                                                setState(() {
-                                                    _emails = newEmails;
-                                                });
-                                            },
-                                        ),
-                                        height: 40,
-                                        width: 150
+                                    height: 35,
+                                    width: 150
+                                ),
+                                SizedBox(
+                                    child: ElevatedButton(
+                                        child: const Text("Find"),
+                                        onPressed: () async {
+                                            List<EmailEntry> entries = await _getEmailsAsEntries();
+                                            setState(() => _emails = entries);
+                                        },
                                     ),
-                                    SizedBox(
-                                        child: ElevatedButton(
-                                            child: const Text("Delete"),
-                                            onPressed: () {},
-                                        ),
-                                        height: 40,
-                                        width: 150
+                                    height: 35,
+                                    width: 150
+                                ),
+                                SizedBox(
+                                    child: ElevatedButton(
+                                        child: const Text("Delete"),
+                                        onPressed: () {},
                                     ),
-                                ],
-                            ),
+                                    height: 35,
+                                    width: 150
+                                ),
+                            ],
                         ),
-                        Container(width: 1, color: Colors.grey),
+                        const SizedBox(height: 8),
                         Expanded(
-                            child: Column(
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                    const Text("Queued to Delete", style: TextStyle(fontSize: 18)),
-                                    const SizedBox(height: 10),
-                                    //replace with listview
-                                    Expanded(
-                                      child: ListView.separated(
-                                            itemCount: _emails.length,
-                                            itemBuilder: (context, index) {
-                                                if(_emails.isEmpty) return Container();
-
-                                                Message email = _emails[index];
-                                                return EmailEntry(
-                                                    email.payload!.headers!.where((element) => element.name == "From").first.value!, 
-                                                    email.payload!.headers!.where((element) => element.name == "Subject").first.value!,
-                                                    email.snippet!
-                                                );
-                                            },
-                                            separatorBuilder: (context, index) => Container(height: 1, color: Colors.grey)
-                                      ),
-                                    )
-                                ],
-                            ),
-                        ),
-                        Container(width: 1, color: Colors.grey),
-                        Expanded(
-                            child: Column(
-                                children: [
-                                    const Text("Blacklist", style: TextStyle(fontSize: 18)),
-                                    const SizedBox(height: 10),
-                                    //replace with listview
                                     Expanded(
                                         child: Column(
                                             children: [
-                                                ElevatedButton(onPressed: () {}, child: const Text("Button")),
-                                                ElevatedButton(onPressed: () {}, child: const Text("Button")),
-                                                ElevatedButton(onPressed: () {}, child: const Text("Button")),
-                                                ElevatedButton(onPressed: () {}, child: const Text("Button")),
-                                                ElevatedButton(onPressed: () {}, child: const Text("Button"))
+                                                const Text("Emails Found", style: TextStyle(fontSize: 18)),
+                                                const SizedBox(height: 10),
+                                                //replace with listview
+                                                Expanded(
+                                                    child: ListView.separated(
+                                                        controller: c1,
+                                                            itemCount: _emails.length,
+                                                            itemBuilder: (context, index) {
+                                                                if(_emails.isEmpty) return Container();
+                                    
+                                                                return _emails[index];
+                                                            },
+                                                            separatorBuilder: (context, index) => Container(height: 1, color: Colors.grey)
+                                                    ),
+                                                )
                                             ],
                                         ),
                                     ),
-                                    ElevatedButton(
-                                        child: const Text("Add to Blacklist"),
-                                        onPressed: (){},
-                                    )
+                                    Container(width: 1, color: Colors.grey, margin: const EdgeInsets.only(left: 5, right: 5),),
+                                    Expanded(
+                                        child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                                const Text("Blacklisted Senders", style: TextStyle(fontSize: 18)),
+                                                const SizedBox(height: 10),
+                                                Expanded(
+                                                    child: FutureBuilder(
+                                                        future: Blacklist.instance.getAll(),
+                                                        builder: (_, snapshot) {
+                                                            if(snapshot.hasData)
+                                                            {
+                                                                List<BlacklistObject> data = snapshot.data as List<BlacklistObject>;
+
+                                                                return ListView.builder(
+                                                                    controller: c2,
+                                                                    itemCount: data.length,
+                                                                    itemBuilder: (context, index) {
+                                                                        return Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            children: [
+                                                                                Text(
+                                                                                    data[index].value + " (${data[index].type})",
+                                                                                    style: const TextStyle(fontSize: 16),
+                                                                                ),
+                                                                                IconButton(
+                                                                                    icon: const Icon(Icons.close),
+                                                                                    onPressed: () => Blacklist.instance.remove(index),
+                                                                                )
+                                                                            ],
+                                                                        );
+                                                                    }
+                                                                );
+                                                            }
+                                                            else { return Container(); }
+                                                        }
+                                                    )
+                                                ),
+                                                ElevatedButton(
+                                                    child: const Text("Add to Blacklist"),
+                                                    onPressed: () => _showAddBlacklistDialog(context),
+                                                )
+                                            ],
+                                        ),
+                                    ),
                                 ],
                             ),
                         ),
-                    ],
+                    ]
                 )    
             )
         );
