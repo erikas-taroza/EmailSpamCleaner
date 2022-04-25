@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:window_size/window_size.dart';
 import 'package:googleapis/gmail/v1.dart';
 import 'gmail_api_helper.dart' as gmail;
 
@@ -8,6 +9,10 @@ import 'models/blacklist_object.dart';
 
 void main() 
 {
+    WidgetsFlutterBinding.ensureInitialized();
+    setWindowMinSize(const Size(900, 600));
+    setWindowMaxSize(const Size(900, 600));
+
     Blacklist _ = Blacklist.instance;
     runApp(const MyApp());
 }
