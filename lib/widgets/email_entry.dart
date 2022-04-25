@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'blacklist_helper.dart';
-import 'models/blacklist_object.dart';
+import '../blacklist_helper.dart';
+import '../models/blacklist_object.dart';
 
 // ignore: must_be_immutable
 class EmailEntry extends StatelessWidget

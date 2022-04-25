@@ -3,7 +3,7 @@ import 'package:window_size/window_size.dart';
 import 'package:googleapis/gmail/v1.dart';
 import 'gmail_api_helper.dart' as gmail;
 
-import 'email_entry.dart';
+import 'widgets/email_entry.dart';
 import 'blacklist_helper.dart';
 import 'models/blacklist_object.dart';
 
@@ -45,6 +45,7 @@ class HomePageState extends State<HomePage>
     List<EmailEntry> _emails = [];
     List<BlacklistObject> _blacklist = Blacklist.instance.blacklist;
 
+    //Gets the emails from the api helper as creates widgets used for display.
     Future<List<EmailEntry>> _getEmailsAsEntries() async
     {
         List<Message> newEmails = await gmail.readEmails();
@@ -64,6 +65,7 @@ class HomePageState extends State<HomePage>
         return entries;
     }
 
+    //Shows the dialog for adding a blacklist value manually.
     void _showAddBlacklistDialog(BuildContext context)
     {
         String value = "";
@@ -103,7 +105,6 @@ class HomePageState extends State<HomePage>
         );
     }
 
-    //TODO: Refresh page when blacklist item is edited.
     @override
     Widget build(BuildContext context)
     {
@@ -116,6 +117,7 @@ class HomePageState extends State<HomePage>
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                     children: [
+                        //Login, Find, Delete buttons.
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -156,6 +158,7 @@ class HomePageState extends State<HomePage>
                             child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
+                                    //Emails list view.
                                     Expanded(
                                         child: Column(
                                             children: [
@@ -178,6 +181,8 @@ class HomePageState extends State<HomePage>
                                         ),
                                     ),
                                     Container(width: 1, color: Colors.grey, margin: const EdgeInsets.only(left: 5, right: 5),),
+                                    //Blacklist list view.
+                                    //TODO: Extract this to its own widget.
                                     Expanded(
                                         child: Column(
                                             mainAxisAlignment: MainAxisAlignment.center,

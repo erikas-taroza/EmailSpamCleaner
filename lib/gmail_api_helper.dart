@@ -10,6 +10,7 @@ import 'blacklist_helper.dart';
 late UsersResource _user;
 List<Message> _messages = [];
 
+///Login to the Gmail API.
 Future<void> login() async
 {
     void _prompt(String url) => launchUrlString(url);
@@ -24,6 +25,7 @@ Future<void> login() async
     _user = gmailApi.users;
 }
 
+//Gets the client information from a json file.
 Future<ClientId> _getClient() async
 {
     String json = await rootBundle.loadString("assets/client.json");
@@ -32,6 +34,7 @@ Future<ClientId> _getClient() async
     return ClientId(data["client_id"], data["client_secret"]);
 }
 
+///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
 Future<List<Message>> readEmails() async
 {
     ListMessagesResponse emails = await _user.messages.list("me", includeSpamTrash: false, maxResults: 10);
@@ -47,6 +50,7 @@ Future<List<Message>> readEmails() async
     return messages;
 }
 
+///Batch deletes emails based on the blacklist values.
 Future<void> deleteEmails() async 
 {
     if(_messages.isEmpty) return;
