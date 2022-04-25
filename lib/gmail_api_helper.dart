@@ -4,7 +4,11 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert' as convert;
 
+import 'models/blacklist_object.dart';
+import 'blacklist_helper.dart';
+
 late UsersResource _user;
+List<Message> _messages = [];
 
 Future<void> login() async
 {
@@ -12,7 +16,7 @@ Future<void> login() async
 
     final client = await clientViaUserConsent(
         await _getClient(),  
-        ["https://www.googleapis.com/auth/gmail.modify"], 
+        ["https://mail.google.com/"], 
         _prompt
     );
 
@@ -39,5 +43,27 @@ Future<List<Message>> readEmails() async
         messages.add(await _user.messages.get("me", id.id!, format: "metadata"));
     }
 
+    _messages = messages;
     return messages;
+}
+
+Future<void> deleteEmails() async 
+{
+    if(_messages.isEmpty) return;
+
+    List<String> idsToDelete = [];
+
+    for(Message message in _messages)
+    {
+        String sender = message.payload!.headers!.where((element) => element.name == "From").first.value!;
+        
+        for(BlacklistObject item in Blacklist.instance.blacklist)
+        {
+            if(!sender.contains(item.value)) continue;
+
+            idsToDelete.add(message.id!);
+        }
+    }
+
+    await _user.messages.batchDelete(BatchDeleteMessagesRequest(ids: idsToDelete), "me");
 }

@@ -9,33 +9,39 @@ class Blacklist
     static final Blacklist instance = Blacklist._();
     Blacklist._();
 
+    List<BlacklistObject> blacklist = [];
+
     Future<File> get _file async
     {
         Directory dir = await getApplicationSupportDirectory();
         return File(dir.path + "/blacklist.json");
     }
 
-    void add(BlacklistObject obj) async
+    Future<void> add(BlacklistObject obj) async
     {
         File file = await _file;
         file.writeAsString(obj.toString() + "\n", mode: FileMode.append);
+
+        blacklist.insert(0, obj);
     }
 
-    void addString(String value)
+    Future<void> addString(String value) async
     {
-        if(value.contains("@")) { add(BlacklistObject(value, "user")); }
-        else if(value.contains(".")) { add(BlacklistObject(value, "domain")); }
+        if(value.contains("@")) { await add(BlacklistObject(value, "user")); }
+        else if(value.contains(".")) { await add(BlacklistObject(value, "domain")); }
     }
 
-    void remove(int id) async
+    Future<void> remove(int id) async
     {
         File file = await _file;
         List<String> lines = await file.readAsLines();
-        lines.removeAt(id);
+        lines.removeAt(lines.length - 1 - id == -1 ? 0 : lines.length - 1 - id);
         file.writeAsString(lines.join("\n"));
+
+        blacklist.removeAt(id);
     }
 
-    Future<List<BlacklistObject>> getAll() async
+    Future<List<BlacklistObject>> retrieve() async
     {
         try
         {

@@ -7,13 +7,15 @@ import 'email_entry.dart';
 import 'blacklist_helper.dart';
 import 'models/blacklist_object.dart';
 
-void main() 
+void main() async
 {
     WidgetsFlutterBinding.ensureInitialized();
     setWindowMinSize(const Size(900, 600));
     setWindowMaxSize(const Size(900, 600));
 
-    Blacklist _ = Blacklist.instance;
+    Blacklist b = Blacklist.instance;
+    b.blacklist = await b.retrieve();
+
     runApp(const MyApp());
 }
 
@@ -21,7 +23,6 @@ class MyApp extends StatelessWidget
 {
     const MyApp({Key? key}) : super(key: key);
 
-    // This widget is the root of your application.
     @override
     Widget build(BuildContext context) 
     {
@@ -42,6 +43,7 @@ class HomePage extends StatefulWidget
 class HomePageState extends State<HomePage>
 {
     List<EmailEntry> _emails = [];
+    List<BlacklistObject> _blacklist = Blacklist.instance.blacklist;
 
     Future<List<EmailEntry>> _getEmailsAsEntries() async
     {
@@ -90,8 +92,9 @@ class HomePageState extends State<HomePage>
                     ),
                     TextButton(
                         child: const Text("ADD"),
-                        onPressed: () {
-                            Blacklist.instance.addString(value);
+                        onPressed: () async {
+                            await Blacklist.instance.addString(value);
+                            setState(() => _blacklist = Blacklist.instance.blacklist);
                             Navigator.of(c).pop();
                         },
                     )
@@ -126,7 +129,7 @@ class HomePageState extends State<HomePage>
                                 ),
                                 SizedBox(
                                     child: ElevatedButton(
-                                        child: const Text("Find"),
+                                        child: const Text("Find Emails"),
                                         onPressed: () async {
                                             List<EmailEntry> entries = await _getEmailsAsEntries();
                                             setState(() => _emails = entries);
@@ -137,8 +140,11 @@ class HomePageState extends State<HomePage>
                                 ),
                                 SizedBox(
                                     child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(primary: Colors.red),
                                         child: const Text("Delete"),
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                            await gmail.deleteEmails();
+                                        },
                                     ),
                                     height: 35,
                                     width: 150
@@ -179,40 +185,35 @@ class HomePageState extends State<HomePage>
                                                 const Text("Blacklisted Senders", style: TextStyle(fontSize: 18)),
                                                 const SizedBox(height: 10),
                                                 Expanded(
-                                                    child: FutureBuilder(
-                                                        future: Blacklist.instance.getAll(),
-                                                        builder: (_, snapshot) {
-                                                            if(snapshot.hasData)
-                                                            {
-                                                                List<BlacklistObject> data = snapshot.data as List<BlacklistObject>;
-
-                                                                return ListView.builder(
-                                                                    controller: c2,
-                                                                    itemCount: data.length,
-                                                                    itemBuilder: (context, index) {
-                                                                        return Row(
-                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                            children: [
-                                                                                Text(
-                                                                                    data[index].value + " (${data[index].type})",
-                                                                                    style: const TextStyle(fontSize: 16),
-                                                                                ),
-                                                                                IconButton(
-                                                                                    icon: const Icon(Icons.close),
-                                                                                    onPressed: () => Blacklist.instance.remove(index),
-                                                                                )
-                                                                            ],
-                                                                        );
-                                                                    }
-                                                                );
-                                                            }
-                                                            else { return Container(); }
+                                                    child: ListView.builder(
+                                                        controller: c2,
+                                                        itemCount: _blacklist.length,
+                                                        itemBuilder: (context, index) {
+                                                            return Row(
+                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                children: [
+                                                                    Text(
+                                                                        _blacklist[index].value + " (${_blacklist[index].type})",
+                                                                        style: const TextStyle(fontSize: 16),
+                                                                    ),
+                                                                    IconButton(
+                                                                        icon: const Icon(Icons.close),
+                                                                        onPressed: () async {
+                                                                            await Blacklist.instance.remove(index);
+                                                                            setState(() => _blacklist = Blacklist.instance.blacklist);
+                                                                        },
+                                                                    )
+                                                                ],
+                                                            );
                                                         }
                                                     )
                                                 ),
-                                                ElevatedButton(
-                                                    child: const Text("Add to Blacklist"),
-                                                    onPressed: () => _showAddBlacklistDialog(context),
+                                                SizedBox(
+                                                    width: double.maxFinite,
+                                                    child: ElevatedButton(
+                                                        child: const Text("Add to Blacklist"),
+                                                        onPressed: () => _showAddBlacklistDialog(context),
+                                                    ),
                                                 )
                                             ],
                                         ),
