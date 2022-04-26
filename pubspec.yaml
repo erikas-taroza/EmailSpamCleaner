@@ -45,6 +45,7 @@ dependencies:
   get: ^4.6.1
   build_runner:
   path_provider:
+  flutter_spinkit:
 
 dev_dependencies:
   flutter_test:

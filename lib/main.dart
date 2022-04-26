@@ -7,9 +7,7 @@ import 'widgets/control_buttons.dart';
 import 'blacklist_helper.dart';
 
 ///TODO:
-///Display a loading widget when the find emails button was pressed.
 ///Add buttons to email entry for deleting and unsubscribing (individually)
-///Prompt user to refesh emails list after deleting
 
 void main() async
 {
