@@ -59,6 +59,18 @@ class ControlButtonsState extends State<ControlButtons>
                         height: 35,
                         width: 150
                     ),
+
+                    SizedBox(
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(primary: Colors.red),
+                            child: const Text("Unsubscribe"),
+                            onPressed: !loggedIn.value ? null : () async {
+                                await gmail.unsubscribeEmails();
+                            },
+                        ),
+                        height: 35,
+                        width: 150
+                    ),
         
                     SizedBox(
                         child: ElevatedButton(
