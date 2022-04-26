@@ -60,9 +60,9 @@ class ControlButtonsState extends State<ControlButtons>
                         child: ElevatedButton(
                             child: const Text("Find Emails"),
                             onPressed: !loggedIn.value ? null : () async {
-                                EmailsListView.state.value = "loading";
+                                EmailsListView.state.value = EmailViewState.loading;
                                 await EmailsListView.getEmailsAsEntries();
-                                EmailsListView.state.value = "";
+                                EmailsListView.state.value = EmailViewState.found;
                                 foundEmails.value = true;
                             },
                         ),
@@ -104,7 +104,7 @@ class ControlButtonsState extends State<ControlButtons>
                                     "Doing this will permanently delete all the blacklisted emails which is irreversible.\n\nAre you sure?", 
                                     () async {
                                         await gmail.deleteEmails();
-                                        EmailsListView.state.value = "refresh";
+                                        EmailsListView.state.value = EmailViewState.refresh;
                                         ShowSnackBar.show(context, "Successfully deleted blacklisted emails!", color: Colors.green);
                                     },
                                 );

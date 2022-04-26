@@ -8,7 +8,7 @@ import 'models/blacklist_object.dart';
 import 'blacklist_helper.dart';
 
 late UsersResource? _user;
-List<Message> _messages = [];
+Map<String, List<Message>> messages = <String, List<Message>>{};
 
 ///Login to the Gmail API.
 Future<void> login() async
@@ -37,7 +37,7 @@ Future<ClientId> _getClient() async
 void logout()
 {
     _user = null;
-    _messages.clear();
+    messages.clear();
 }
 
 ///Returns the IDs and data of blacklisted emails.
@@ -45,15 +45,18 @@ Map<String, Message> getBlacklistedEmails()
 {
     Map<String, Message> emails = <String, Message>{};
 
-    for(Message message in _messages)
+    for(List<Message> page in messages.values)
     {
-        String sender = message.payload!.headers!.where((element) => element.name == "From").first.value!;
-        
-        for(BlacklistObject item in Blacklist.instance.blacklist)
+        for(Message message in page)
         {
-            if(!sender.contains(item.value)) continue;
+            String sender = message.payload!.headers!.where((element) => element.name == "From").first.value!;
+            
+            for(BlacklistObject item in Blacklist.instance.blacklist)
+            {
+                if(!sender.contains(item.value)) continue;
 
-            emails[message.id!] = message;
+                emails[message.id!] = message;
+            }
         }
     }
 
@@ -61,32 +64,36 @@ Map<String, Message> getBlacklistedEmails()
 }
 
 ///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
-Future<List<Message>> readEmails() async
+Future<List<Message>> readEmails(String pageToken) async
 {
-    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: 10);
+    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: 5, pageToken: pageToken);
     List<Message> ids = emails.messages!;
-    List<Message> messages = [];
+    List<Message> _messages = [];
 
     for(Message id in ids)
     {
-        messages.add(await _user!.messages.get("me", id.id!, format: "full"));
+        _messages.add(await _user!.messages.get("me", id.id!, format: "full"));
     }
 
-    _messages = messages;
-    return messages;
+    messages[emails.nextPageToken!] = _messages;
+    return _messages;
 }
 
 ///Batch deletes emails based on the blacklist values.
 Future<void> deleteEmails() async 
 {
-    if(_messages.isEmpty) return;
-    await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: getBlacklistedEmails().keys.toList()), "me");
+    if(messages.isEmpty) return;
+
+    List<String> ids = getBlacklistedEmails().keys.toList();
+    if(ids.isEmpty) return;
+
+    await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids), "me");
 }
 
 ///Unsubscribes from every blacklisted email if possible.
 Future<void> unsubscribeEmails() async
 {
-    if(_messages.isEmpty) return;
+    if(messages.isEmpty) return;
 
     List<String> usedSenders = [];
     Map<String, Message> emails = getBlacklistedEmails();
