@@ -60,6 +60,7 @@ class BlacklistView extends StatelessWidget
                     Expanded(
                         child: Obx(() {
                             var blacklist = Blacklist.instance.blacklist;
+                            
                             return ListView.builder(
                                 controller: sc,
                                 itemCount: blacklist.length,

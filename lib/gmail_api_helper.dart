@@ -7,7 +7,7 @@ import 'dart:convert' as convert;
 import 'models/blacklist_object.dart';
 import 'blacklist_helper.dart';
 
-late UsersResource _user;
+late UsersResource? _user;
 List<Message> _messages = [];
 
 ///Login to the Gmail API.
@@ -34,16 +34,22 @@ Future<ClientId> _getClient() async
     return ClientId(data["client_id"], data["client_secret"]);
 }
 
+void logout()
+{
+    _user = null;
+    _messages.clear();
+}
+
 ///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
 Future<List<Message>> readEmails() async
 {
-    ListMessagesResponse emails = await _user.messages.list("me", includeSpamTrash: false, maxResults: 10);
+    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: 10);
     List<Message> ids = emails.messages!;
     List<Message> messages = [];
 
     for(Message id in ids)
     {
-        messages.add(await _user.messages.get("me", id.id!, format: "metadata"));
+        messages.add(await _user!.messages.get("me", id.id!, format: "metadata"));
     }
 
     _messages = messages;
@@ -69,5 +75,5 @@ Future<void> deleteEmails() async
         }
     }
 
-    await _user.messages.batchDelete(BatchDeleteMessagesRequest(ids: idsToDelete), "me");
+    await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: idsToDelete), "me");
 }

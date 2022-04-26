@@ -11,7 +11,7 @@ class Blacklist
     Blacklist._();
 
     //Observed blacklist using Get package.
-    RxList<dynamic> blacklist = [].obs;
+    RxList<BlacklistObject> blacklist = <BlacklistObject>[].obs;
 
     Future<File> get _file async
     {
