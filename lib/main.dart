@@ -7,9 +7,6 @@ import 'widgets/control_buttons.dart';
 import 'blacklist_helper.dart';
 
 ///TODO:
-///Display snackbar after deleting and unsubscribing.
-///Dialog confirming deleting and unsubscribing actions.
-///Only unlock find emails button after logging in and unlock unsubscribe and delete buttons after emails have been received
 ///Display a loading widget when the find emails button was pressed.
 ///Add buttons to email entry for deleting and unsubscribing (individually)
 ///Prompt user to refesh emails list after deleting

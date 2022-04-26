@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 ///Widget that allows easy showing of the snackbar.
 class ShowSnackBar
 { 
-    ShowSnackBar(String message, BuildContext context, { Color color = Colors.transparent });
-
-    ShowSnackBar.show(String message, BuildContext context, { Color color = Colors.transparent })
+    ShowSnackBar.show(BuildContext context, String message, { Color color = Colors.transparent })
     {
         showSnackBar(message, color, context);
     }

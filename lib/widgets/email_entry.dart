@@ -35,7 +35,7 @@ class EmailEntry extends StatelessWidget
                         ),
                     ),
                     IconButton(
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.unsubscribe_outlined),
                         onPressed: () async {
                             String senderEmail = sender.split("<")[1].split(">")[0];
                             await Blacklist.instance.add(BlacklistObject(senderEmail, "user"));

@@ -43,7 +43,14 @@ class Blacklist
         File file = await _file;
         List<String> lines = await file.readAsLines();
         lines.removeAt(lines.length - 1 - id == -1 ? 0 : lines.length - 1 - id);
-        await file.writeAsString(lines.join("\n"));
+
+        //For some reason, using lines.join("\n") doesn't work and messes up the json.
+        String data = "";
+        for(String str in lines)
+        {
+            data += str + "\n";
+        }
+        await file.writeAsString(data);
 
         blacklist.removeAt(id);
     }
