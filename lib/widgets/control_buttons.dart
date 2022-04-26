@@ -17,15 +17,18 @@ class ControlButtons extends StatefulWidget
 class ControlButtonsState extends State<ControlButtons>
 {
     RxBool loggedIn = false.obs;
-    RxBool foundEmails = false.obs;
 
     Future<void> loginButtonClick(BuildContext context) async
     {
         if(!loggedIn.value)
         {
             await gmail.login().then(
-                (value) {
+                (value) async {
                     ShowSnackBar.show(context, "Login was successful! You can now find, unsubscribe from, and delete emails.", color: Colors.green);
+                    
+                    EmailsListView.state.value = EmailViewState.loading;
+                    await EmailsListView.getEmailsAsEntries();
+                    EmailsListView.state.value = EmailViewState.found;
                 }
             );
             loggedIn.value = true;
@@ -33,19 +36,20 @@ class ControlButtonsState extends State<ControlButtons>
         else
         {
             gmail.logout();
+            EmailsListView.state.value = EmailViewState.none;
+            EmailsListView.emails.clear();
             loggedIn.value = false;
-            foundEmails.value = false;
         }
     }
 
     @override
     Widget build(BuildContext context) 
     {
-        return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-                Obx(
-                    () => SizedBox(
+        return Obx(
+            () => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                    SizedBox(
                         child: ElevatedButton(
                             child: Text(!loggedIn.value ? "Login" : "Logout"),
                             onPressed: () async => await loginButtonClick(context)
@@ -53,30 +57,12 @@ class ControlButtonsState extends State<ControlButtons>
                         height: 35,
                         width: 150
                     ),
-                ),
-    
-                Obx(
-                    () => SizedBox(
-                        child: ElevatedButton(
-                            child: const Text("Find Emails"),
-                            onPressed: !loggedIn.value ? null : () async {
-                                EmailsListView.state.value = EmailViewState.loading;
-                                await EmailsListView.getEmailsAsEntries();
-                                EmailsListView.state.value = EmailViewState.found;
-                                foundEmails.value = true;
-                            },
-                        ),
-                        height: 35,
-                        width: 150
-                    ),
-                ),
 
-                Obx(
-                    () => SizedBox(
+                    SizedBox(
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(primary: Colors.red),
                             child: const Text("Unsubscribe"),
-                            onPressed: !foundEmails.value ? null : () async {
+                            onPressed: !loggedIn.value ? null : () async {
                                 DeleteDialog.show(
                                     context, 
                                     "Doing this will unsubscribe you from all the blacklisted emails which may be irreversible.\n\nAre you sure?", 
@@ -91,14 +77,12 @@ class ControlButtonsState extends State<ControlButtons>
                         height: 35,
                         width: 150
                     ),
-                ),
-    
-                Obx(
-                    () => SizedBox(
+            
+                    SizedBox(
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(primary: Colors.red),
                             child: const Text("Delete"),
-                            onPressed: !foundEmails.value ? null : () async {
+                            onPressed: !loggedIn.value ? null : () async {
                                 DeleteDialog.show(
                                     context, 
                                     "Doing this will permanently delete all the blacklisted emails which is irreversible.\n\nAre you sure?", 
@@ -113,8 +97,8 @@ class ControlButtonsState extends State<ControlButtons>
                         height: 35,
                         width: 150
                     ),
-                ),
-            ],
+                ],
+            ),
         );
     }
     

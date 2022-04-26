@@ -7,8 +7,17 @@ import 'dart:convert';
 import 'models/blacklist_object.dart';
 import 'blacklist_helper.dart';
 
-late UsersResource? _user;
+// ignore: constant_identifier_names
+const int MAX_RESULTS = 5;
+bool get isLastPage 
+{ 
+    if(messages.isEmpty) return false;
+
+    return messages[messages.keys.last]!.length < MAX_RESULTS; 
+}
 Map<String, List<Message>> messages = <String, List<Message>>{};
+
+late UsersResource? _user;
 
 ///Login to the Gmail API.
 Future<void> login() async
@@ -66,7 +75,7 @@ Map<String, Message> getBlacklistedEmails()
 ///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
 Future<List<Message>> readEmails(String pageToken) async
 {
-    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: 5, pageToken: pageToken);
+    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: MAX_RESULTS, pageToken: pageToken);
     List<Message> ids = emails.messages!;
     List<Message> _messages = [];
 
@@ -87,7 +96,17 @@ Future<void> deleteEmails() async
     List<String> ids = getBlacklistedEmails().keys.toList();
     if(ids.isEmpty) return;
 
-    await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids), "me");
+    if(ids.length > 1000)
+    {
+        for(int i = 0; i < ids.length; i += 1000)
+        {
+            await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids.getRange(i, i + 1000).toList()), "me");
+        }
+    }
+    else
+    {
+        await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids), "me");
+    }   
 }
 
 ///Unsubscribes from every blacklisted email if possible.
