@@ -7,14 +7,13 @@ import 'dart:convert';
 import 'models/blacklist_object.dart';
 import 'blacklist_helper.dart';
 
-// ignore: constant_identifier_names
-const int MAX_RESULTS = 5;
 bool get isLastPage 
 { 
     if(messages.isEmpty) return false;
 
-    return messages[messages.keys.last]!.length < MAX_RESULTS; 
+    return messages.keys.last == "last"; 
 }
+
 Map<String, List<Message>> messages = <String, List<Message>>{};
 
 late UsersResource? _user;
@@ -75,7 +74,7 @@ Map<String, Message> getBlacklistedEmails()
 ///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
 Future<List<Message>> readEmails(String pageToken) async
 {
-    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: MAX_RESULTS, pageToken: pageToken);
+    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: 300, pageToken: pageToken);
     List<Message> ids = emails.messages!;
     List<Message> _messages = [];
 
@@ -84,7 +83,9 @@ Future<List<Message>> readEmails(String pageToken) async
         _messages.add(await _user!.messages.get("me", id.id!, format: "full"));
     }
 
-    messages[emails.nextPageToken!] = _messages;
+    if(emails.nextPageToken == null) { messages["last"] = _messages; }
+    else { messages[emails.nextPageToken!] = _messages; }
+    
     return _messages;
 }
 

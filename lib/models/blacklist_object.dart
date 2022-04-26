@@ -22,4 +22,8 @@ class BlacklistObject
         Map<String, dynamic> json = toJson();
         return "{\"value\": \"${json["value"]}\", \"type\": \"${json["type"]}\"}";
     }
+
+    @override
+    // ignore: hash_and_equals
+    bool operator ==(other) => other is BlacklistObject && value == other.value && type == other.type;
 }

@@ -20,7 +20,7 @@ class PageSelectorState extends State<PageSelector>
     int _loadingPage = -1;
     bool _isLoadingPage = false;
     
-    bool get canGoNext { return !(_pageNumber == _loadingPage) || !_isLoadingPage || gmail.isLastPage; }
+    bool get canGoNext { return !(_pageNumber == _loadingPage) || !_isLoadingPage; }
 
     @override
     void initState()
@@ -69,7 +69,7 @@ class PageSelectorState extends State<PageSelector>
                 ),
                 IconButton(
                     icon: const Icon(Icons.chevron_right),
-                    onPressed: canGoNext ? () {
+                    onPressed: canGoNext && !gmail.isLastPage ? () {
                         setState(() => _pageNumber++);
                         widget.onPageChanged(_pageNumber, canGoNext);
                     } : null,

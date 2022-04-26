@@ -52,7 +52,10 @@ class ControlButtonsState extends State<ControlButtons>
                     SizedBox(
                         child: ElevatedButton(
                             child: Text(!loggedIn.value ? "Login" : "Logout"),
-                            onPressed: () async => await loginButtonClick(context)
+                            onPressed: EmailsListView.state.value == EmailViewState.loading || EmailsListView.state.value == EmailViewState.pageChange ?
+                                null :
+                                () async => await loginButtonClick(context)
+                            ,
                         ),
                         height: 35,
                         width: 150
@@ -62,17 +65,20 @@ class ControlButtonsState extends State<ControlButtons>
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(primary: Colors.red),
                             child: const Text("Unsubscribe"),
-                            onPressed: !loggedIn.value ? null : () async {
-                                DeleteDialog.show(
-                                    context, 
-                                    "Doing this will unsubscribe you from all the blacklisted emails which may be irreversible.\n\nAre you sure?", 
-                                    () async {
-                                        await gmail.unsubscribeEmails();
-                                        ShowSnackBar.show(context, "Successfully unsubscribed from blacklisted emails!", color: Colors.green);
-                                    },
-                                    deleteButtonText: "UNSUBSCRIBE",
-                                );
-                            },
+                            onPressed: !loggedIn.value || (EmailsListView.state.value == EmailViewState.loading || EmailsListView.state.value == EmailViewState.pageChange) ?
+                                null : 
+                                () async {
+                                    DeleteDialog.show(
+                                        context, 
+                                        "Doing this will unsubscribe you from all the blacklisted emails which may be irreversible.\n\nAre you sure?", 
+                                        () async {
+                                            await gmail.unsubscribeEmails();
+                                            ShowSnackBar.show(context, "Successfully unsubscribed from blacklisted emails!", color: Colors.green);
+                                        },
+                                        deleteButtonText: "UNSUBSCRIBE",
+                                    );
+                                }
+                            ,
                         ),
                         height: 35,
                         width: 150
@@ -82,17 +88,20 @@ class ControlButtonsState extends State<ControlButtons>
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(primary: Colors.red),
                             child: const Text("Delete"),
-                            onPressed: !loggedIn.value ? null : () async {
-                                DeleteDialog.show(
-                                    context, 
-                                    "Doing this will permanently delete all the blacklisted emails which is irreversible.\n\nAre you sure?", 
-                                    () async {
-                                        await gmail.deleteEmails();
-                                        EmailsListView.state.value = EmailViewState.refresh;
-                                        ShowSnackBar.show(context, "Successfully deleted blacklisted emails!", color: Colors.green);
-                                    },
-                                );
-                            },
+                            onPressed: !loggedIn.value || (EmailsListView.state.value == EmailViewState.loading || EmailsListView.state.value == EmailViewState.pageChange) ? 
+                                null : 
+                                () async {
+                                    DeleteDialog.show(
+                                        context, 
+                                        "Doing this will permanently delete all the blacklisted emails which is irreversible.\n\nAre you sure?", 
+                                        () async {
+                                            await gmail.deleteEmails();
+                                            EmailsListView.state.value = EmailViewState.refresh;
+                                            ShowSnackBar.show(context, "Successfully deleted blacklisted emails!", color: Colors.green);
+                                        },
+                                    );
+                                }
+                            ,
                         ),
                         height: 35,
                         width: 150

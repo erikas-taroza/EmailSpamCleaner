@@ -22,10 +22,13 @@ class Blacklist
     ///[obj] The [BlacklistObject] to add to the database.
     Future<void> add(BlacklistObject obj) async
     {
-        File file = await _file;
-        await file.writeAsString(obj.toString() + "\n", mode: FileMode.append);
+        if(blacklist.indexOf(obj) == -1)
+        {
+            File file = await _file;
+            await file.writeAsString(obj.toString() + "\n", mode: FileMode.append);
 
-        blacklist.insert(0, obj);
+            blacklist.insert(0, obj);
+        }
     }
 
     ///Creates a [BlacklistObject] from the given value and adds it to the database.
