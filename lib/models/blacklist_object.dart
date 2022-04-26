@@ -24,6 +24,8 @@ class BlacklistObject
     }
 
     @override
-    // ignore: hash_and_equals
     bool operator ==(other) => other is BlacklistObject && value == other.value && type == other.type;
+
+    @override
+    int get hashCode => Object.hash(value, type);
 }

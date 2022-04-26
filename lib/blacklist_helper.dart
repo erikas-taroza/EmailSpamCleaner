@@ -22,7 +22,7 @@ class Blacklist
     ///[obj] The [BlacklistObject] to add to the database.
     Future<void> add(BlacklistObject obj) async
     {
-        if(blacklist.indexOf(obj) == -1)
+        if(!blacklist.contains(obj))
         {
             File file = await _file;
             await file.writeAsString(obj.toString() + "\n", mode: FileMode.append);
