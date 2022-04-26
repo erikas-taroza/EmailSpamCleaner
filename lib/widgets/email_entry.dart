@@ -36,10 +36,10 @@ class EmailEntry extends StatelessWidget
                     ),
                     IconButton(
                         icon: const Icon(Icons.add),
-                        onPressed: () {
+                        onPressed: () async {
                             String senderEmail = sender.split("<")[1].split(">")[0];
-                            Blacklist.instance.add(BlacklistObject(senderEmail, "user"));
-                            Blacklist.instance.add(BlacklistObject(senderEmail.split("@")[1], "domain"));
+                            await Blacklist.instance.add(BlacklistObject(senderEmail, "user"));
+                            await Blacklist.instance.add(BlacklistObject(senderEmail.split("@")[1], "domain"));
                         },
                     ),
                 ],

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
+import 'package:get/get.dart';
 
 import 'models/blacklist_object.dart';
 
@@ -9,7 +10,8 @@ class Blacklist
     static final Blacklist instance = Blacklist._();
     Blacklist._();
 
-    List<BlacklistObject> blacklist = [];
+    //Observed blacklist using Get package.
+    RxList<dynamic> blacklist = [].obs;
 
     Future<File> get _file async
     {
@@ -21,7 +23,7 @@ class Blacklist
     Future<void> add(BlacklistObject obj) async
     {
         File file = await _file;
-        file.writeAsString(obj.toString() + "\n", mode: FileMode.append);
+        await file.writeAsString(obj.toString() + "\n", mode: FileMode.append);
 
         blacklist.insert(0, obj);
     }
@@ -41,7 +43,7 @@ class Blacklist
         File file = await _file;
         List<String> lines = await file.readAsLines();
         lines.removeAt(lines.length - 1 - id == -1 ? 0 : lines.length - 1 - id);
-        file.writeAsString(lines.join("\n"));
+        await file.writeAsString(lines.join("\n"));
 
         blacklist.removeAt(id);
     }
@@ -59,12 +61,14 @@ class Blacklist
             
             if(lines.isEmpty) return [];
 
-            for (String data in lines) 
+            for (String data in lines.reversed) 
             {
-                objs.add(BlacklistObject.fromJson(jsonDecode(data)));
+                BlacklistObject obj = BlacklistObject.fromJson(jsonDecode(data));
+                objs.add(obj);
+                blacklist.add(obj);
             }
 
-            return objs.reversed.toList();
+            return objs;
         }
         catch (e) { return []; }
     }
