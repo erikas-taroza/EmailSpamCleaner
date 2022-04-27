@@ -74,7 +74,7 @@ Map<String, Message> getBlacklistedEmails()
 ///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
 Future<List<Message>> readEmails(String pageToken) async
 {
-    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: 300, pageToken: pageToken);
+    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: 10, pageToken: pageToken);
     List<Message> ids = emails.messages!;
     List<Message> _messages = [];
 

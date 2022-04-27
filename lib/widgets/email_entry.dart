@@ -15,7 +15,7 @@ class EmailEntry extends StatelessWidget
     Widget build(BuildContext context) 
     {
         return Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 10),
+            padding: const EdgeInsets.only(bottom: 10, top: 10),
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

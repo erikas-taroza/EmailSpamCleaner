@@ -73,66 +73,69 @@ class EmailsListView extends StatelessWidget
         ScrollController sc = ScrollController();
 
         return Expanded(
-            child: Column(
-                children: [
-                    const Text("Emails Found", style: TextStyle(fontSize: 18)),
-                    Obx(() => state.value == EmailViewState.found || state.value == EmailViewState.pageChange ? 
-                        const SizedBox(height: 10) 
-                        : Container()),
-                    Obx(
-                        () {
-                            if(state.value == EmailViewState.loading)
-                            {
-                                return const Expanded(child: Center(child: SpinKitRing(color: Colors.black, lineWidth: 5)));
-                            }
-                            else if(state.value == EmailViewState.refresh)
-                            {
-                                return Expanded(
-                                    child: Center(
-                                        child: ElevatedButton(
-                                            child: const Text("REFRESH", style: TextStyle(color: Colors.blue)),
-                                            onPressed: () async {
-                                                _setViewState(EmailViewState.loading);
-                                                await getEmailsAsEntries();
-                                                _setViewState(EmailViewState.found);
-                                            },
-                                            style: ElevatedButton.styleFrom(primary: Colors.white),
-                                        ),
-                                    ),
-                                );
-                            }
-                            else
-                            {
-                                if(emails.isEmpty) return Container();
-
-                                if((state.value == EmailViewState.found || _canGoNext.value) && state.value != EmailViewState.none)
+            child: Padding(
+                padding: const EdgeInsets.only(left: 5, right: 5),
+                child: Column(
+                    children: [
+                        const Text("Emails Found", style: TextStyle(fontSize: 18)),
+                        Obx(() => state.value == EmailViewState.found || state.value == EmailViewState.pageChange ? 
+                            const SizedBox(height: 10) 
+                            : Container()),
+                        Obx(
+                            () {
+                                if(state.value == EmailViewState.loading)
                                 {
-                                    List<EmailEntry> entries = emails[_pageNumber.value]!;
+                                    return const Expanded(child: Center(child: SpinKitRing(color: Colors.black, lineWidth: 5)));
+                                }
+                                else if(state.value == EmailViewState.refresh)
+                                {
                                     return Expanded(
-                                        child: ListView.separated(
-                                            controller: sc,
-                                            itemCount: entries.length,
-                                            itemBuilder: (context, index) {
-                                                return entries[index];
-                                            },
-                                            separatorBuilder: (context, index) => Container(height: 1, color: Colors.grey)
+                                        child: Center(
+                                            child: ElevatedButton(
+                                                child: const Text("REFRESH", style: TextStyle(color: Colors.blue)),
+                                                onPressed: () async {
+                                                    _setViewState(EmailViewState.loading);
+                                                    await getEmailsAsEntries();
+                                                    _setViewState(EmailViewState.found);
+                                                },
+                                                style: ElevatedButton.styleFrom(primary: Colors.white),
+                                            ),
                                         ),
                                     );
                                 }
-                                else { return Expanded(child: Container()); }
+                                else
+                                {
+                                    if(emails.isEmpty) return Container();
+            
+                                    if((state.value == EmailViewState.found || _canGoNext.value) && state.value != EmailViewState.none)
+                                    {
+                                        List<EmailEntry> entries = emails[_pageNumber.value]!;
+                                        return Expanded(
+                                            child: ListView.separated(
+                                                controller: sc,
+                                                itemCount: entries.length,
+                                                itemBuilder: (context, index) {
+                                                    return entries[index];
+                                                },
+                                                separatorBuilder: (context, index) => Container(height: 1, color: Colors.grey)
+                                            ),
+                                        );
+                                    }
+                                    else { return Expanded(child: Container()); }
+                                }
                             }
-                        }
-                    ),
-                    Obx(
-                        () {
-                            if(state.value == EmailViewState.found || state.value == EmailViewState.pageChange)
-                            {
-                                return PageSelector((value, canGoNext) async => await _onPageChanged(value, canGoNext));
+                        ),
+                        Obx(
+                            () {
+                                if(state.value == EmailViewState.found || state.value == EmailViewState.pageChange)
+                                {
+                                    return PageSelector((value, canGoNext) async => await _onPageChanged(value, canGoNext));
+                                }
+                                else { return Container(); }
                             }
-                            else { return Container(); }
-                        }
-                    )
-                ],
+                        )
+                    ],
+                ),
             ),
         );
     }
