@@ -85,7 +85,7 @@ class EmailsListView extends StatelessWidget
                             () {
                                 if(state.value == EmailViewState.loading)
                                 {
-                                    return const Expanded(child: Center(child: SpinKitRing(color: Colors.black, lineWidth: 5)));
+                                    return const Expanded(child: Center(child: SpinKitRing(color: Colors.blue, lineWidth: 5)));
                                 }
                                 else if(state.value == EmailViewState.refresh)
                                 {

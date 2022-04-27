@@ -60,7 +60,7 @@ class PageSelectorState extends State<PageSelector>
                         !canGoNext ? const Padding(
                             padding: EdgeInsets.only(left: 5, top: 3),
                             child: SpinKitRing(
-                                color: Colors.black,
+                                color: Colors.blue,
                                 lineWidth: 2,
                                 size: 12,
                             ),
