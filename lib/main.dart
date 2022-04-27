@@ -7,7 +7,7 @@ import 'widgets/control_buttons.dart';
 import 'blacklist_helper.dart';
 
 ///TODO:
-///Add buttons to email entry for deleting and unsubscribing (individually)
+///Some unsubscriptions are not working
 
 void main() async
 {

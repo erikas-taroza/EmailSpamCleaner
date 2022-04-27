@@ -116,9 +116,7 @@ class EmailsListView extends StatelessWidget
                                             child: ListView.separated(
                                                 controller: sc,
                                                 itemCount: entries.length,
-                                                itemBuilder: (context, index) {
-                                                    return entries[index];
-                                                },
+                                                itemBuilder: (context, index) => entries[index],
                                                 separatorBuilder: (context, index) => Container(height: 1, color: Colors.grey)
                                             ),
                                         );
