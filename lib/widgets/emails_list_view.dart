@@ -94,6 +94,8 @@ class EmailsListView extends StatelessWidget
                                             child: ElevatedButton(
                                                 child: const Text("REFRESH", style: TextStyle(color: Colors.blue)),
                                                 onPressed: () async {
+                                                    EmailsListView.emails.clear();
+
                                                     _setViewState(EmailViewState.loading);
                                                     await getEmailsAsEntries();
                                                     _setViewState(EmailViewState.found);

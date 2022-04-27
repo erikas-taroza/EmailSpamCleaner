@@ -11,7 +11,8 @@ int get lastPageId
 { 
     if(messages.isEmpty) return -1;
 
-    if(messages.keys.last == "last")
+    //If we reached the last page or if the first page is the last page.
+    if(messages.keys.last == "last" || messages.keys.last == "")
     {
         return messages.keys.length - 1;
     }
