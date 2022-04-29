@@ -144,7 +144,7 @@ class _HeaderState extends State<_Header> with SingleTickerProviderStateMixin
     Widget build(BuildContext context) 
     {
         return SizedBox(
-            height: 26,
+            height: 25,
             child: Stack(
                 alignment: Alignment.center,
                 children: [

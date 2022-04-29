@@ -32,7 +32,6 @@ class EmailEntry extends StatelessWidget
             padding: const EdgeInsets.only(bottom: 10, top: 10),
             child: Obx(
                 () => Container(
-                    //color: _isBlackListed() ? Colors.grey[300] : Theme.of(context).canvasColor,
                     decoration: !_isBlackListed() ? null 
                     : BoxDecoration(
                         gradient: LinearGradient(

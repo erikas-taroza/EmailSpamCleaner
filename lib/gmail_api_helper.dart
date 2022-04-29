@@ -132,7 +132,7 @@ Future<void> unsubscribeEmails() async
         if(usedSenders.contains(sender)) continue;
 
         Iterable<MessagePartHeader> unsubHeader = email.payload!.headers!.where((element) => element.name == "List-Unsubscribe");
-        if(unsubHeader.isNotEmpty)
+        if(unsubHeader.isNotEmpty && !unsubHeader.first.value!.contains("mailto"))
         {
             url = unsubHeader.first.value!.split("<")[1].split(">")[0];
         }
@@ -154,8 +154,14 @@ Future<void> unsubscribeEmails() async
             }
 
             //Parse the html code to find the unsubscribe url.
-            String lastHref = plain.split("nsubscribe")[0].split("href=\"").last;
-            String _url = lastHref.split(" ")[0];
+            List<String> split = plain.split("nsubscribe");
+            //In case there is no unsubscribe link found.
+            if(split.length == 1) continue;
+
+            RegExp regex = RegExp(r"(href)", caseSensitive: false);
+            String href = regex.allMatches(split[0]).last.group(0)!;
+            String _url = split[0].split("$href=\"").last.split(" ")[0];
+
             //This means that the url was cutoff. 
             if(_url[_url.length - 1] != "\"")
             {
