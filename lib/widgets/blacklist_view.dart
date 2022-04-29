@@ -85,13 +85,28 @@ class BlacklistViewState extends State<BlacklistView>
                                             child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
-                                                    Text(
-                                                        blacklist[index].value + " (${blacklist[index].type})",
-                                                        style: const TextStyle(fontSize: 16),
+                                                    Expanded(
+                                                        child: Tooltip(
+                                                            message: blacklist[index].value + " (${blacklist[index].type})",
+                                                            waitDuration: const Duration(milliseconds: 500),
+                                                            child: Text(
+                                                                blacklist[index].value,
+                                                                style: const TextStyle(fontSize: 16),
+                                                                overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                        ),
                                                     ),
-                                                    IconButton(
-                                                        icon: const Icon(Icons.person_remove),
-                                                        onPressed: () async => await Blacklist.instance.remove(index),
+                                                    Row(
+                                                        children: [
+                                                            Text(
+                                                                " (${blacklist[index].type})",
+                                                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                                            ),
+                                                            IconButton(
+                                                                icon: const Icon(Icons.person_remove),
+                                                                onPressed: () async => await Blacklist.instance.remove(index),
+                                                            ),
+                                                        ]
                                                     ),
                                                 ],
                                             ),
