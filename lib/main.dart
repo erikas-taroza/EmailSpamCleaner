@@ -6,9 +6,6 @@ import 'widgets/emails_list_view.dart';
 import 'widgets/control_buttons.dart';
 import 'blacklist_helper.dart';
 
-///TODO:
-///Some unsubscriptions are not working
-
 void main() async
 {
     WidgetsFlutterBinding.ensureInitialized();
