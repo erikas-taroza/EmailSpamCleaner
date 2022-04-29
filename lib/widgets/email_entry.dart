@@ -11,12 +11,16 @@ class EmailEntry extends StatelessWidget
     final String sender;
     final String subject;
     final String snippet;
+    String get senderEmail 
+    { 
+        if(sender.contains(RegExp(r"(<|>)"))) { return sender.split("<")[1].split(">")[0]; }
+        return sender;
+    }
 
     bool _isBlackListed()
     {
-        String s = sender.split("<")[1].split(">")[0];
-        BlacklistObject user = BlacklistObject(s, "user");
-        BlacklistObject domain = BlacklistObject(s.split("@")[1], "domain");
+        BlacklistObject user = BlacklistObject(senderEmail, "user");
+        BlacklistObject domain = BlacklistObject(senderEmail.split("@")[1], "domain");
 
         if(Blacklist.instance.blacklist.contains(user) || Blacklist.instance.blacklist.contains(domain))
         { return true; }
@@ -63,7 +67,6 @@ class EmailEntry extends StatelessWidget
                             IconButton(
                                 icon: const Icon(Icons.unsubscribe_outlined),
                                 onPressed: () async {
-                                    String senderEmail = sender.split("<")[1].split(">")[0];
                                     await Blacklist.instance.add(BlacklistObject(senderEmail, "user"));
                                     await Blacklist.instance.add(BlacklistObject(senderEmail.split("@")[1], "domain"));
                                 },

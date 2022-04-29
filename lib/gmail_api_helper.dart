@@ -79,7 +79,13 @@ Map<String, Message> getBlacklistedEmails()
 ///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
 Future<List<Message>> readEmails(String pageToken) async
 {
-    ListMessagesResponse emails = await _user!.messages.list("me", includeSpamTrash: false, maxResults: 300, pageToken: pageToken);
+    ListMessagesResponse emails = await _user!.messages.list(
+        "me", 
+        includeSpamTrash: false, 
+        maxResults: 300, 
+        labelIds: ["INBOX"], 
+        pageToken: pageToken
+    );
     List<Message> ids = emails.messages!;
     List<Message> _messages = [];
 
@@ -104,9 +110,13 @@ Future<void> deleteEmails() async
 
     if(ids.length > 1000)
     {
-        for(int i = 0; i < ids.length; i += 1000)
+        for(int i = 0; i < ids.length / 1000; i++)
         {
-            await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids.getRange(i, i + 1000).toList()), "me");
+            int endIndex = 0;
+            if(i == ids.length ~/ 1000) { endIndex = ids.length - 1; }
+            else { endIndex = 1000 + (i * 1000) - 1; }
+            
+            await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids.getRange(i *  1000, endIndex).toList()), "me");
         }
     }
     else

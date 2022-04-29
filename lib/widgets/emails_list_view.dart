@@ -35,11 +35,19 @@ class EmailsListView extends StatelessWidget
 
         for (Message email in newEmails) 
         {
+            String sender = "";
+            String subject = "";
+            String snippet = "";
+
+            try { sender = email.payload!.headers!.where((element) => element.name == "From").first.value!; } catch(e) { sender = ""; }
+            try { subject = email.payload!.headers!.where((element) => element.name == "Subject").first.value!; } catch(e) { subject = ""; }
+            try { snippet = email.snippet!; } catch(e) { snippet = ""; }
+
             emails[page]!.add(
                 EmailEntry(
-                    email.payload!.headers!.where((element) => element.name == "From").first.value!, 
-                    email.payload!.headers!.where((element) => element.name == "Subject").first.value!,
-                    email.snippet!
+                    sender,
+                    subject,
+                    snippet
                 )
             );
         }
