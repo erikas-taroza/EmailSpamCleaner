@@ -10,6 +10,9 @@ class Blacklist
     static final Blacklist instance = Blacklist._();
     Blacklist._();
 
+    //These domains should not be added automatically because they are from popular email services.
+    static const serviceDomains = ["gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "aol.com", "protonmail.com"];
+    
     //Observed blacklist using Get package.
     RxList<BlacklistObject> blacklist = <BlacklistObject>[].obs;
 
@@ -20,9 +23,9 @@ class Blacklist
     }
 
     ///[obj] The [BlacklistObject] to add to the database.
-    Future<void> add(BlacklistObject obj) async
+    Future<void> add(BlacklistObject obj, {bool auto = false}) async
     {
-        if(!blacklist.contains(obj))
+        if(!blacklist.contains(obj) || (obj.type == "domain" && serviceDomains.contains(obj.value)) && auto)
         {
             File file = await _file;
             await file.writeAsString(obj.toString() + "\n", mode: FileMode.append);

@@ -67,8 +67,8 @@ class EmailEntry extends StatelessWidget
                             IconButton(
                                 icon: const Icon(Icons.unsubscribe_outlined),
                                 onPressed: () async {
-                                    await Blacklist.instance.add(BlacklistObject(senderEmail, "user"));
-                                    await Blacklist.instance.add(BlacklistObject(senderEmail.split("@")[1], "domain"));
+                                    await Blacklist.instance.add(BlacklistObject(senderEmail, "user"), auto: true);
+                                    await Blacklist.instance.add(BlacklistObject(senderEmail.split("@")[1], "domain"), auto: true);
                                 },
                             ),
                         ],
