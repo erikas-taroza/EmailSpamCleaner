@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../blacklist_helper.dart';
+import '../models/blacklist_object.dart';
 
 class BlacklistView extends StatefulWidget
 {
@@ -13,7 +14,10 @@ class BlacklistView extends StatefulWidget
 
 class BlacklistViewState extends State<BlacklistView>
 {
-    String search = "";
+    String searchInput = "";
+    RxList<BlacklistObject> blacklist = Blacklist.instance.blacklist;
+    List<int> searchKeys = [];
+    List<BlacklistObject> searchObjects = [];
 
     //Shows the dialog for adding a blacklist value manually.
     void _showAddBlacklistDialog(BuildContext context)
@@ -54,6 +58,37 @@ class BlacklistViewState extends State<BlacklistView>
         );
     }
 
+    bool search()
+    {
+        if(searchInput != "")
+        {
+            searchKeys.clear();
+            searchObjects.clear();
+            
+            for(int i = 0; i < blacklist.length; i++)
+            {
+                BlacklistObject obj = blacklist[i];
+
+                //Explicit search with !
+                if(searchInput[0] == "!" && obj.value == searchInput.substring(1)) 
+                { 
+                    searchKeys.add(i);
+                    searchObjects.add(obj);
+                }
+                else if(!obj.value.contains(searchInput)) { continue; }
+                else 
+                { 
+                    searchKeys.add(i);
+                    searchObjects.add(obj); 
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     @override
     Widget build(BuildContext context)
     {
@@ -65,21 +100,19 @@ class BlacklistViewState extends State<BlacklistView>
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                        _Header((text) => setState(() => search = text)),
+                        _Header((text) => setState(() => searchInput = text)),
                         const SizedBox(height: 10),
                         Expanded(
                             child: Obx(() {
-                                var blacklist = Blacklist.instance.blacklist;
-            
+                                bool searched = search();
+
                                 return ListView.builder(
                                     controller: sc,
-                                    itemCount: blacklist.length,
+                                    itemCount: searched ? searchKeys.length : blacklist.length,
                                     itemBuilder: (context, index) {
-                                        if(search != "" && !blacklist[index].value.contains(search))
-                                        {
-                                            return Container();
-                                        }
-            
+                                        String value = searched ? searchObjects[index].value : blacklist[index].value;
+                                        String type = searched ? searchObjects[index].type : blacklist[index].type;
+
                                         return Padding(
                                             padding: const EdgeInsets.only(bottom: 10),
                                             child: Row(
@@ -87,10 +120,10 @@ class BlacklistViewState extends State<BlacklistView>
                                                 children: [
                                                     Expanded(
                                                         child: Tooltip(
-                                                            message: blacklist[index].value + " (${blacklist[index].type})",
+                                                            message: value + " ($type)",
                                                             waitDuration: const Duration(milliseconds: 500),
                                                             child: Text(
-                                                                blacklist[index].value,
+                                                                value,
                                                                 style: const TextStyle(fontSize: 16),
                                                                 overflow: TextOverflow.ellipsis,
                                                             ),
@@ -99,12 +132,15 @@ class BlacklistViewState extends State<BlacklistView>
                                                     Row(
                                                         children: [
                                                             Text(
-                                                                " (${blacklist[index].type})",
+                                                                " ($type)",
                                                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                                             ),
                                                             IconButton(
                                                                 icon: const Icon(Icons.person_remove),
-                                                                onPressed: () async => await Blacklist.instance.remove(index),
+                                                                onPressed: () async {
+                                                                    if(!searched) { await Blacklist.instance.remove(index); }
+                                                                    else { await Blacklist.instance.remove(searchKeys[index]); }
+                                                                },
                                                             ),
                                                         ]
                                                     ),

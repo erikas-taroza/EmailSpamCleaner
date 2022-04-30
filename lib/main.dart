@@ -5,8 +5,7 @@ import 'widgets/blacklist_view.dart';
 import 'widgets/emails_list_view.dart';
 import 'widgets/control_buttons.dart';
 import 'blacklist_helper.dart';
-//TODO: Search for either user or domain
-//Delete emails under useless categories
+//TODO: Delete emails under useless categories
 void main() async
 {
     WidgetsFlutterBinding.ensureInitialized();
