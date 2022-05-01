@@ -71,11 +71,11 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                             buttonType: "text", color: Colors.red, 
                                             height: 35, width: 172,
                                             disabled: pressed.value,
-                                            onComplete: () async {
+                                            onComplete: !pressed.value ? () async {
                                                 pressed.value = true;
                                                 await deleteUselessEmails("CATEGORY_SOCIAL");
                                                 pressed.value = false;
-                                            },  
+                                            } : () {},
                                         ),
                                         false.obs
                                     ),
@@ -91,11 +91,11 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                             buttonType: "text", color: Colors.red, 
                                             height: 35, width: 172,
                                             disabled: pressed.value,
-                                            onComplete: () async {
+                                            onComplete: !pressed.value ? () async {
                                                 pressed.value = true;
                                                 await deleteUselessEmails("CATEGORY_UPDATES");
                                                 pressed.value = false;
-                                            },  
+                                            } : () {},
                                         ),
                                         false.obs
                                     ),
@@ -112,11 +112,11 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                             height: 35, width: 172,
                                             border: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
                                             disabled: pressed.value,
-                                            onComplete: () async {
+                                            onComplete: !pressed.value ? () async {
                                                 pressed.value = true;
                                                 await deleteUselessEmails("CATEGORY_PROMOTIONS");
                                                 pressed.value = false;
-                                            },  
+                                            } : () {},
                                         ),
                                         false.obs
                                     ),
@@ -152,13 +152,13 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                 height: 35, width: 150,
                                 border: BorderRadius.circular(5),
                                 text: Text(pressed.value ? "Deleting..." : "Delete"),
-                                onComplete: () async {
+                                onComplete: !pressed.value ? () async {
                                     pressed.value = true;
                                     await gmail.deleteBlacklistedEmails();
                                     EmailsListView.state.value = EmailViewState.refresh;
                                     ShowSnackBar.show(context, "Successfully deleted blacklisted emails!", color: Colors.green);
                                     pressed.value = false;
-                                },
+                                } : () {},
                             ),
                             false.obs
                         ),
