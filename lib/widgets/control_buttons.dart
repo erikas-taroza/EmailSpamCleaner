@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 
 import '../gmail_api_helper.dart' as gmail;
 import 'emails_list_view.dart';
+import 'hold_progress_button.dart';
 import 'multi_delete_button.dart';
 import 'show_snackbar.dart';
-import 'delete_dialog.dart';
 
 class ControlButtons extends StatefulWidget
 {
@@ -63,28 +63,19 @@ class ControlButtonsState extends State<ControlButtons>
                             height: 35,
                             width: 150
                         ),
-
                         SizedBox(
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(primary: Colors.red),
-                                child: const Text("Unsubscribe"),
-                                onPressed: !loggedIn.value || disableState ?
-                                    null : 
-                                    () async {
-                                        DeleteDialog.show(
-                                            context, 
-                                            "Doing this will unsubscribe you from all the blacklisted emails which may be irreversible.\n\nAre you sure?", 
-                                            () async {
-                                                await gmail.unsubscribeEmails();
-                                                ShowSnackBar.show(context, "Successfully unsubscribed from blacklisted emails!", color: Colors.green);
-                                            },
-                                            deleteButtonText: "UNSUBSCRIBE",
-                                        );
-                                    }
-                                ,
-                            ),
                             height: 35,
-                            width: 150
+                            width: 150,
+                            child: HoldProgressButton(
+                                disabled: !loggedIn.value || disableState, buttonType: "elevated", color: Colors.red,
+                                width: 150, height: 35,
+                                border: BorderRadius.circular(5),
+                                text: const Text("Unsubscribe"),
+                                onComplete: () async {
+                                    await gmail.unsubscribeEmails();
+                                    ShowSnackBar.show(context, "Successfully unsubscribed from blacklisted emails!", color: Colors.green);
+                                },
+                            ),
                         ),
                         MultiDeleteButton(!loggedIn.value || disableState)
                     ],

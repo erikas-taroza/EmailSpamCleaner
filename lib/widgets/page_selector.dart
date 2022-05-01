@@ -69,7 +69,7 @@ class PageSelectorState extends State<PageSelector>
                 ),
                 IconButton(
                     icon: const Icon(Icons.chevron_right),
-                    onPressed: canGoNext && (gmail.lastPageId != _pageNumber) ? () {
+                    onPressed: canGoNext && (gmail.lastPageNumber != _pageNumber) ? () {
                         setState(() => _pageNumber++);
                         widget.onPageChanged(_pageNumber, canGoNext);
                     } : null,

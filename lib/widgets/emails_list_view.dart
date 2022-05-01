@@ -22,11 +22,11 @@ class EmailsListView extends StatelessWidget
         List<Message> newEmails = [];
         if(page == 0)
         {
-            newEmails = await gmail.readEmails("");
+            newEmails = await gmail.readInboxEmails("");
         }
         else
         {
-            newEmails = await gmail.readEmails(gmail.messages.keys.elementAt(page - 1)); 
+            newEmails = await gmail.readInboxEmails(gmail.messages.keys.elementAt(page - 1)); 
         }
 
         if(emails[page] == null) emails[page] = [];
@@ -141,7 +141,7 @@ class EmailsListView extends StatelessWidget
                                 }
                                 else { return Container(); }
                             }
-                        )
+                        ),
                     ],
                 ),
             ),

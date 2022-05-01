@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'models/blacklist_object.dart';
 import 'blacklist_helper.dart';
 
-int get lastPageId
+int get lastPageNumber
 { 
     if(messages.isEmpty) return -1;
 
@@ -53,6 +53,30 @@ void logout()
     messages.clear();
 }
 
+///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
+Future<List<Message>> readInboxEmails(String pageToken) async
+{
+    ListMessagesResponse emails = await _user!.messages.list(
+        "me", 
+        includeSpamTrash: false, 
+        maxResults: 300, 
+        labelIds: ["INBOX"], 
+        pageToken: pageToken
+    );
+    List<Message> ids = emails.messages!;
+    List<Message> _messages = [];
+
+    for(Message id in ids)
+    {
+        _messages.add(await _user!.messages.get("me", id.id!, format: "full"));
+    }
+
+    if(emails.nextPageToken == null) { messages["last"] = _messages; }
+    else { messages[emails.nextPageToken!] = _messages; }
+    
+    return _messages;
+}
+
 ///Returns the IDs and data of blacklisted emails.
 Map<String, Message> getBlacklistedEmails()
 {
@@ -76,32 +100,8 @@ Map<String, Message> getBlacklistedEmails()
     return emails;
 }
 
-///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
-Future<List<Message>> readEmails(String pageToken) async
-{
-    ListMessagesResponse emails = await _user!.messages.list(
-        "me", 
-        includeSpamTrash: false, 
-        maxResults: 300, 
-        labelIds: ["INBOX"], 
-        pageToken: pageToken
-    );
-    List<Message> ids = emails.messages!;
-    List<Message> _messages = [];
-
-    for(Message id in ids)
-    {
-        _messages.add(await _user!.messages.get("me", id.id!, format: "full"));
-    }
-
-    if(emails.nextPageToken == null) { messages["last"] = _messages; }
-    else { messages[emails.nextPageToken!] = _messages; }
-    
-    return _messages;
-}
-
 ///Batch deletes emails based on the blacklist values.
-Future<void> deleteEmails() async 
+Future<void> deleteBlacklistedEmails() async 
 {
     if(messages.isEmpty) return;
 
@@ -123,6 +123,35 @@ Future<void> deleteEmails() async
     {
         await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids), "me");
     }   
+}
+
+///Useable labels: "CATEGORY_UPDATES", "CATEGORY_PROMOTIONS", "CATEGORY_SOCIAL", "CATEGORY_FORUMS"
+Future<void> deleteUselessEmails(String labelId) async
+{
+    if(messages.isEmpty) return;
+
+    Future<ListMessagesResponse> getEmails(String token) async
+    {
+        return await _user!.messages.list(
+            "me", 
+            includeSpamTrash: false, 
+            maxResults: 500, 
+            labelIds: [labelId], 
+            pageToken: token
+        );
+    }
+
+    ListMessagesResponse emails = await getEmails("");
+    if(emails.messages == null) return;
+    List<String> ids = emails.messages!.map((e) => e.id!).toList();
+    await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids), "me");
+
+    while(emails.nextPageToken != null)
+    {
+        emails = await getEmails(emails.nextPageToken!);
+        ids = emails.messages!.map((e) => e.id!).toList();
+        await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids), "me");
+    }
 }
 
 ///Unsubscribes from every blacklisted email if possible.
