@@ -25,7 +25,8 @@ class Blacklist
     ///[obj] The [BlacklistObject] to add to the database.
     Future<void> add(BlacklistObject obj, {bool auto = false}) async
     {
-        if(!blacklist.contains(obj) || (obj.type == "domain" && serviceDomains.contains(obj.value)) && auto)
+        if(obj.type == "domain" && serviceDomains.contains(obj.value) && auto) return;
+        if(!blacklist.contains(obj))
         {
             File file = await _file;
             await file.writeAsString(obj.toString() + "\n", mode: FileMode.append);
