@@ -184,6 +184,7 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                                     _animController.reverse();
                                                     await Future.delayed(_animDuration);
                                                     _overlayEntry!.remove();
+                                                    _overlayEntry = null;
                                                 }
                                                 else 
                                                 { 
