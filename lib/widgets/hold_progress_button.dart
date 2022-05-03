@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+///Widget that displays a progress bar when holding the button to confirm an action.
 class HoldProgressButton extends StatefulWidget
 {
     ///Only "text" or "elevated" buttons are allowed.
@@ -35,6 +36,7 @@ class _HoldProgressButtonState extends State<HoldProgressButton>
     int animDuration = 0;
     bool holding = false;
 
+    //Builds either a text button or elevated button.
     ButtonStyleButton buildButton()
     {
         if(widget.buttonType == "text")
@@ -93,6 +95,8 @@ class _HoldProgressButtonState extends State<HoldProgressButton>
                         width: widget.width,
                         child: buildButton()
                     ),
+
+                    //Progress bar.
                     AnimatedContainer(
                         duration: Duration(milliseconds: animDuration),
                         alignment: Alignment.centerLeft,

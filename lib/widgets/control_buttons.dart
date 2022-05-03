@@ -7,15 +7,16 @@ import 'hold_progress_button.dart';
 import 'multi_delete_button.dart';
 import 'show_snackbar.dart';
 
+///Widget that displays the login, unsubscribe, and delete buttons.
 class ControlButtons extends StatefulWidget
 {
     const ControlButtons({Key? key}) : super(key: key);
 
     @override
-    State<StatefulWidget> createState() => ControlButtonsState();
+    State<StatefulWidget> createState() => _ControlButtonsState();
 }
 
-class ControlButtonsState extends State<ControlButtons>
+class _ControlButtonsState extends State<ControlButtons>
 {
     RxBool loggedIn = false.obs;
 
@@ -52,6 +53,7 @@ class ControlButtonsState extends State<ControlButtons>
                 return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
+                        //Login button.
                         SizedBox(
                             child: ElevatedButton(
                                 child: Text(!loggedIn.value ? "Login" : "Logout"),
@@ -63,6 +65,8 @@ class ControlButtonsState extends State<ControlButtons>
                             height: 35,
                             width: 150
                         ),
+
+                        //Unsubscribe button.
                         SizedBox(
                             height: 35,
                             width: 150,
@@ -77,6 +81,7 @@ class ControlButtonsState extends State<ControlButtons>
                                 },
                             ),
                         ),
+
                         MultiDeleteButton(!loggedIn.value || disableState)
                     ],
                 );

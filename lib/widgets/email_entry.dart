@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../blacklist_helper.dart';
 import '../models/blacklist_object.dart';
 
+///Widget that displays the email information.
 class EmailEntry extends StatelessWidget
 {
     const EmailEntry(this.sender, this.subject, this.snippet, {Key? key}) : super(key: key);
@@ -11,7 +12,7 @@ class EmailEntry extends StatelessWidget
     final String sender;
     final String subject;
     final String snippet;
-    String get senderEmail 
+    String get senderEmail //Returns the formatted email.
     { 
         if(sender.contains(RegExp(r"(<|>)"))) { return sender.split("<")[1].split(">")[0]; }
         return sender;
@@ -37,7 +38,7 @@ class EmailEntry extends StatelessWidget
             child: Obx(
                 () => Container(
                     decoration: !_isBlackListed() ? null 
-                    : BoxDecoration(
+                    : BoxDecoration( //Indicate if the email is blacklisted.
                         gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: const Alignment(-0.9, -0.8),
@@ -49,6 +50,7 @@ class EmailEntry extends StatelessWidget
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                            //Display the email contents.
                             Expanded(
                                 child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,6 +66,8 @@ class EmailEntry extends StatelessWidget
                                     ],
                                 ),
                             ),
+
+                            //Auto blacklist button.
                             IconButton(
                                 icon: const Icon(Icons.unsubscribe_outlined),
                                 onPressed: () async {

@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../gmail_api_helper.dart' as gmail;
 import 'emails_list_view.dart';
 
+///Widget that allows the user to move between pages of emails.
 class PageSelector extends StatefulWidget
 {
     const PageSelector(this.onPageChanged, {Key? key}) : super(key: key);
@@ -11,16 +12,16 @@ class PageSelector extends StatefulWidget
     final Function(int, bool) onPageChanged;
 
     @override
-    State<StatefulWidget> createState() => PageSelectorState();
+    State<StatefulWidget> createState() => _PageSelectorState();
 }
 
-class PageSelectorState extends State<PageSelector>
+class _PageSelectorState extends State<PageSelector>
 {
-    int _pageNumber = 0;
-    int _loadingPage = -1;
-    bool _isLoadingPage = false;
+    int pageNumber = 0;
+    int loadingPage = -1;
+    bool isLoadingPage = false;
     
-    bool get canGoNext { return !(_pageNumber == _loadingPage) || !_isLoadingPage; }
+    bool get canGoNext { return !(pageNumber == loadingPage) || !isLoadingPage; }
 
     @override
     void initState()
@@ -29,13 +30,13 @@ class PageSelectorState extends State<PageSelector>
         EmailsListView.state.listen((val) {
             if(val == EmailViewState.pageChange || val == EmailViewState.loading)
             {
-                _isLoadingPage = true;
-                _loadingPage = _pageNumber;
+                isLoadingPage = true;
+                loadingPage = pageNumber;
             }
             else if(val == EmailViewState.found)
             {
-                _isLoadingPage = false;
-                _loadingPage = -1;
+                isLoadingPage = false;
+                loadingPage = -1;
             }
         });
     }
@@ -46,17 +47,20 @@ class PageSelectorState extends State<PageSelector>
         return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+                //Previous page button.
                 IconButton(
                     icon: const Icon(Icons.chevron_left),
-                    onPressed: _pageNumber != 0 ? () {
-                        setState(() => _pageNumber--);
-                        widget.onPageChanged(_pageNumber, canGoNext);
+                    onPressed: pageNumber != 0 ? () {
+                        setState(() => pageNumber--);
+                        widget.onPageChanged(pageNumber, canGoNext);
                     } : null,
                 ),
+
+                //Page number and loading ring.
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                        Text((_pageNumber + 1).toString()),
+                        Text((pageNumber + 1).toString()),
                         !canGoNext ? const Padding(
                             padding: EdgeInsets.only(left: 5, top: 3),
                             child: SpinKitRing(
@@ -67,11 +71,13 @@ class PageSelectorState extends State<PageSelector>
                         ) : Container()
                     ],
                 ),
+
+                //Next page button.
                 IconButton(
                     icon: const Icon(Icons.chevron_right),
-                    onPressed: canGoNext && (gmail.lastPageNumber != _pageNumber) ? () {
-                        setState(() => _pageNumber++);
-                        widget.onPageChanged(_pageNumber, canGoNext);
+                    onPressed: canGoNext && (gmail.lastPageNumber != pageNumber) ? () {
+                        setState(() => pageNumber++);
+                        widget.onPageChanged(pageNumber, canGoNext);
                     } : null,
                 ),
             ],

@@ -23,6 +23,7 @@ class Blacklist
     }
 
     ///[obj] The [BlacklistObject] to add to the database.
+    ///[auto] If the object was added automatically.
     Future<void> add(BlacklistObject obj, {bool auto = false}) async
     {
         if(obj.type == "domain" && serviceDomains.contains(obj.value) && auto) return;

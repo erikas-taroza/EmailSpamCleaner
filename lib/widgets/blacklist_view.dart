@@ -4,23 +4,24 @@ import 'package:get/get.dart';
 import '../blacklist_helper.dart';
 import '../models/blacklist_object.dart';
 
+///Widget that displays the blacklist.
 class BlacklistView extends StatefulWidget
 {
     const BlacklistView({Key? key}) : super(key: key);
 
     @override
-    State<StatefulWidget> createState() => BlacklistViewState();
+    State<StatefulWidget> createState() => _BlacklistViewState();
 }
 
-class BlacklistViewState extends State<BlacklistView>
+class _BlacklistViewState extends State<BlacklistView>
 {
     String searchInput = "";
     RxList<BlacklistObject> blacklist = Blacklist.instance.blacklist;
-    List<int> searchKeys = [];
+    List<int> searchIndicies = [];
     List<BlacklistObject> searchObjects = [];
 
     //Shows the dialog for adding a blacklist value manually.
-    void _showAddBlacklistDialog(BuildContext context)
+    void showAddBlacklistDialog(BuildContext context)
     {
         String value = "";
 
@@ -62,7 +63,7 @@ class BlacklistViewState extends State<BlacklistView>
     {
         if(searchInput != "")
         {
-            searchKeys.clear();
+            searchIndicies.clear();
             searchObjects.clear();
             
             for(int i = 0; i < blacklist.length; i++)
@@ -72,13 +73,13 @@ class BlacklistViewState extends State<BlacklistView>
                 //Explicit search with !
                 if(searchInput[0] == "!" && obj.value == searchInput.substring(1)) 
                 { 
-                    searchKeys.add(i);
+                    searchIndicies.add(i);
                     searchObjects.add(obj);
                 }
                 else if(!obj.value.contains(searchInput)) { continue; }
                 else 
                 { 
-                    searchKeys.add(i);
+                    searchIndicies.add(i);
                     searchObjects.add(obj); 
                 }
             }
@@ -103,21 +104,23 @@ class BlacklistViewState extends State<BlacklistView>
                         _Header((text) => setState(() => searchInput = text)),
                         const SizedBox(height: 10),
                         Expanded(
-                            child: Obx(() {
+                            child: Obx(() { //Observe the blacklist list.
                                 bool searched = search();
 
                                 return ListView.builder(
                                     controller: sc,
-                                    itemCount: searched ? searchKeys.length : blacklist.length,
+                                    itemCount: searched ? searchIndicies.length : blacklist.length,
                                     itemBuilder: (context, index) {
                                         String value = searched ? searchObjects[index].value : blacklist[index].value;
                                         String type = searched ? searchObjects[index].type : blacklist[index].type;
 
+                                        //Build the list item for the blacklist item.
                                         return Padding(
                                             padding: const EdgeInsets.only(bottom: 10),
                                             child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
+                                                    //The domain / user.
                                                     Expanded(
                                                         child: Tooltip(
                                                             message: value + " ($type)",
@@ -135,11 +138,13 @@ class BlacklistViewState extends State<BlacklistView>
                                                                 " ($type)",
                                                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                                             ),
+
+                                                            //Remove from blacklist button.
                                                             IconButton(
                                                                 icon: const Icon(Icons.person_remove),
                                                                 onPressed: () async {
                                                                     if(!searched) { await Blacklist.instance.remove(index); }
-                                                                    else { await Blacklist.instance.remove(searchKeys[index]); }
+                                                                    else { await Blacklist.instance.remove(searchIndicies[index]); }
                                                                 },
                                                             ),
                                                         ]
@@ -155,7 +160,7 @@ class BlacklistViewState extends State<BlacklistView>
                             width: double.maxFinite,
                             child: ElevatedButton(
                                 child: const Text("Add to Blacklist"),
-                                onPressed: () => _showAddBlacklistDialog(context),
+                                onPressed: () => showAddBlacklistDialog(context),
                             ),
                         )
                     ],
@@ -165,6 +170,7 @@ class BlacklistViewState extends State<BlacklistView>
     }
 }
 
+///Widget that displays the header for the blacklist view and a searchbar.
 class _Header extends StatefulWidget
 {
     const _Header(this.onSearchSubmitted);
@@ -177,19 +183,19 @@ class _Header extends StatefulWidget
 
 class _HeaderState extends State<_Header> with SingleTickerProviderStateMixin
 {
-    late final AnimationController _iconController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: _animationDuration.inMilliseconds + 300)
+    late final AnimationController iconController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: animationDuration.inMilliseconds + 300)
     );
     
-    late final Animation<double> _iconAnimation = CurvedAnimation(
-        curve: Curves.easeInOut, parent: _iconController
+    late final Animation<double> iconAnimation = CurvedAnimation(
+        curve: Curves.easeInOut, parent: iconController
     );
 
-    final Duration _animationDuration = const Duration(milliseconds: 200);
-    final TextEditingController _textFieldController = TextEditingController();
+    final Duration animationDuration = const Duration(milliseconds: 200);
+    final TextEditingController textFieldController = TextEditingController();
 
-    final double _maxSize = 430 - 56;
-    bool _showTextField = false;
+    final double maxSize = 430 - 56; //Approximate width of the blacklist view.
+    bool showTextField = false;
 
     @override
     Widget build(BuildContext context) 
@@ -199,18 +205,20 @@ class _HeaderState extends State<_Header> with SingleTickerProviderStateMixin
             child: Stack(
                 alignment: Alignment.center,
                 children: [
+                    //Title
                     const Text("Blacklisted Senders", style: TextStyle(fontSize: 18)),
+                    //Search text input field.
                     Padding(
                         padding: const EdgeInsets.only(right: 56),
                         child: Align(
                             alignment: Alignment.centerRight,
                             child: AnimatedContainer(
-                                duration: _animationDuration,
+                                duration: animationDuration,
                                 curve: Curves.linear,
                                 color: Theme.of(context).canvasColor,
-                                width: _showTextField ? _maxSize : 0,
+                                width: showTextField ? maxSize : 0,
                                 child: TextField(
-                                    controller: _textFieldController,
+                                    controller: textFieldController,
                                     decoration: const InputDecoration(
                                         contentPadding: EdgeInsets.symmetric(vertical: 16)
                                     ),
@@ -219,24 +227,25 @@ class _HeaderState extends State<_Header> with SingleTickerProviderStateMixin
                             ),
                         ),
                     ),
+                    //Button to toggle search bar.
                     Align(
                         alignment: Alignment.centerRight,
                         child: RotationTransition(
-                            turns: _iconAnimation,
+                            turns: iconAnimation,
                             child: IconButton(
                                 icon: AnimatedSwitcher(
-                                    duration: _animationDuration,
+                                    duration: animationDuration,
                                     transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
-                                    child: _showTextField ? 
+                                    child: showTextField ? 
                                         const Icon(Icons.close, key: ValueKey("1")) 
                                         : const Icon(Icons.search, key: ValueKey("2")),
                                 ),
                                 padding: const EdgeInsets.all(0),
                                 onPressed: () {
-                                    setState(() => _showTextField = !_showTextField);
-                                    _textFieldController.clear();
+                                    setState(() => showTextField = !showTextField);
+                                    textFieldController.clear();
                                     widget.onSearchSubmitted("");
-                                    _showTextField ? _iconController.forward() : _iconController.reverse();
+                                    showTextField ? iconController.forward() : iconController.reverse();
                                 },
                             ),
                         ),

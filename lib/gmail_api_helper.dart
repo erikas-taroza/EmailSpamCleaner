@@ -21,7 +21,7 @@ int get lastPageNumber
 
 Map<String, List<Message>> messages = <String, List<Message>>{};
 
-late UsersResource? _user;
+UsersResource? _user;
 
 ///Login to the Gmail API.
 Future<void> login() async
@@ -47,6 +47,7 @@ Future<ClientId> _getClient() async
     return ClientId(data["client_id"], data["client_secret"]);
 }
 
+///Logs out by resetting the user and clearing the messages.
 void logout()
 {
     _user = null;
@@ -54,6 +55,8 @@ void logout()
 }
 
 ///Reads the user's emails and returns a list of emails containing message ID, labels, and headers.
+///
+///[pageToken] The next page's token.
 Future<List<Message>> readInboxEmails(String pageToken) async
 {
     ListMessagesResponse emails = await _user!.messages.list(
@@ -108,6 +111,8 @@ Future<void> deleteBlacklistedEmails() async
     List<String> ids = getBlacklistedEmails().keys.toList();
     if(ids.isEmpty) return;
 
+    //Split the emails into parts if the length is greater than 1000.
+    //The max IDs the api will take is 1000.
     if(ids.length > 1000)
     {
         for(int i = 0; i < ids.length / 1000; i++)
@@ -125,7 +130,9 @@ Future<void> deleteBlacklistedEmails() async
     }   
 }
 
-///Useable labels: "CATEGORY_UPDATES", "CATEGORY_PROMOTIONS", "CATEGORY_SOCIAL", "CATEGORY_FORUMS"
+///Batch deletes ALL emails in these categories.
+///
+///[labelId] "CATEGORY_UPDATES", "CATEGORY_PROMOTIONS", "CATEGORY_SOCIAL", "CATEGORY_FORUMS"
 Future<void> deleteUselessEmails(String labelId) async
 {
     if(messages.isEmpty) return;
@@ -143,6 +150,7 @@ Future<void> deleteUselessEmails(String labelId) async
 
     ListMessagesResponse emails = await getEmails("");
     if(emails.messages == null) return;
+
     List<String> ids = emails.messages!.map((e) => e.id!).toList();
     await _user!.messages.batchDelete(BatchDeleteMessagesRequest(ids: ids), "me");
 

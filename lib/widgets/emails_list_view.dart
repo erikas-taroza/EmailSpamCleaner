@@ -20,14 +20,8 @@ class EmailsListView extends StatelessWidget
     static Future<void> getEmailsAsEntries({int page = 0}) async
     {
         List<Message> newEmails = [];
-        if(page == 0)
-        {
-            newEmails = await gmail.readInboxEmails("");
-        }
-        else
-        {
-            newEmails = await gmail.readInboxEmails(gmail.messages.keys.elementAt(page - 1)); 
-        }
+        if(page == 0) { newEmails = await gmail.readInboxEmails(""); } //Leave the next page token blank on page 0.
+        else { newEmails = await gmail.readInboxEmails(gmail.messages.keys.elementAt(page - 1)); }
 
         if(emails[page] == null) emails[page] = [];
 
@@ -55,6 +49,7 @@ class EmailsListView extends StatelessWidget
 
     Future<void> _onPageChanged(int value, bool canGoNext) async
     {
+        //This code only runs when a new page is loaded.
         if(emails[value] == null)
         {
             _canGoNext.value = false;
@@ -86,15 +81,20 @@ class EmailsListView extends StatelessWidget
                 child: Column(
                     children: [
                         const Text("Emails Found", style: TextStyle(fontSize: 18)),
+                        //Spacer
                         Obx(() => state.value == EmailViewState.found || state.value == EmailViewState.pageChange ? 
                             const SizedBox(height: 10) 
                             : Container()),
+                        
+                        //Body
                         Obx(
                             () {
+                                //Display spinner if we are loading.
                                 if(state.value == EmailViewState.loading)
                                 {
                                     return const Expanded(child: Center(child: SpinKitRing(color: Colors.blue, lineWidth: 5)));
                                 }
+                                //Display refresh button if we need to refresh.
                                 else if(state.value == EmailViewState.refresh)
                                 {
                                     return Expanded(
@@ -113,6 +113,7 @@ class EmailsListView extends StatelessWidget
                                         ),
                                     );
                                 }
+                                //Display the emails in a list view.
                                 else
                                 {
                                     if(emails.isEmpty) return Container();
@@ -133,6 +134,8 @@ class EmailsListView extends StatelessWidget
                                 }
                             }
                         ),
+
+                        //Page selector.
                         Obx(
                             () {
                                 if(state.value == EmailViewState.found || state.value == EmailViewState.pageChange)
@@ -149,6 +152,7 @@ class EmailsListView extends StatelessWidget
     }
 }
 
+///Possible states for the email list view.
 enum EmailViewState
 {
     none,

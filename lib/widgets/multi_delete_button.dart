@@ -6,6 +6,7 @@ import 'emails_list_view.dart';
 import 'show_snackbar.dart';
 import 'hold_progress_button.dart';
 
+///Widget with a delete button for deleting blacklisted emails and a dropdown for deleting emails in the useless categories.
 class MultiDeleteButton extends StatefulWidget
 {
     const MultiDeleteButton(this.disabled, {Key? key}) : super(key: key);
@@ -13,25 +14,26 @@ class MultiDeleteButton extends StatefulWidget
     final bool disabled;
 
     @override
-    State<StatefulWidget> createState() => MultiDeleteButtonState();
+    State<StatefulWidget> createState() => _MultiDeleteButtonState();
 }
 
-class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProviderStateMixin
+class _MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProviderStateMixin
 {
-    static const Duration _animDuration = Duration(milliseconds: 200);
+    static const Duration animDuration = Duration(milliseconds: 200);
 
-    late final AnimationController _animController = AnimationController(
+    late final AnimationController animController = AnimationController(
         vsync: this,
-        duration: _animDuration,
+        duration: animDuration,
     );
-    late final Animation<double> _sizeAnim = CurvedAnimation(
-        parent: _animController,
+    late final Animation<double> sizeAnim = CurvedAnimation(
+        parent: animController,
         curve: Curves.fastOutSlowIn
     );
 
-    OverlayEntry? _overlayEntry;
-    final List<bool> _dropdownStates = [false, false, false];
+    OverlayEntry? overlayEntry;
+    final List<bool> dropdownStates = [false, false, false];
 
+    //Deletes the useless emails based on the category ID.
     Future<void> deleteUselessEmails(String labelId) async
     {
         await gmail.deleteUselessEmails(labelId);
@@ -39,7 +41,8 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
         ShowSnackBar.show(context, "Successfully deleted ${labelId.split("_")[1].toLowerCase()} emails!", color: Colors.green);
     }
 
-    OverlayEntry _createOverlay()
+    //Creates the dropdown of buttons. The dropdown is animated.
+    OverlayEntry createOverlay()
     {
         RenderBox o = context.findRenderObject()! as RenderBox;
         Offset offset = o.localToGlobal(Offset.zero);
@@ -50,7 +53,7 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                 left: offset.dx,
                 top: offset.dy + size.height - 2,
                 child: SizeTransition(
-                    sizeFactor: _sizeAnim,
+                    sizeFactor: sizeAnim,
                     axis: Axis.vertical,
                     child: Container(
                         height: 35 * 3,
@@ -62,6 +65,7 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                                //Delete social button.
                                 ObxValue(
                                     (RxBool pressed) => HoldProgressButton(
                                         text: Text(
@@ -72,13 +76,15 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                         height: 35, width: 172,
                                         disabled: pressed.value,
                                         onComplete: !pressed.value ? () async {
-                                            pressed.value = _dropdownStates[0] = true;
+                                            pressed.value = dropdownStates[0] = true;
                                             await deleteUselessEmails("CATEGORY_SOCIAL");
-                                            pressed.value = _dropdownStates[0] = false;
+                                            pressed.value = dropdownStates[0] = false;
                                         } : () {},
                                     ),
-                                    _dropdownStates[0].obs
+                                    dropdownStates[0].obs
                                 ),
+
+                                //Delete updates button.
                                 ObxValue(
                                     (RxBool pressed) => HoldProgressButton(
                                         text: Text(
@@ -89,13 +95,15 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                         height: 35, width: 172,
                                         disabled: pressed.value,
                                         onComplete: !pressed.value ? () async {
-                                            pressed.value = _dropdownStates[1] = true;
+                                            pressed.value = dropdownStates[1] = true;
                                             await deleteUselessEmails("CATEGORY_UPDATES");
-                                            pressed.value = _dropdownStates[1] = false;
+                                            pressed.value = dropdownStates[1] = false;
                                         } : () {},
                                     ),
-                                    _dropdownStates[1].obs
+                                    dropdownStates[1].obs
                                 ),
+                                
+                                //Delete promotion button.
                                 ObxValue(
                                     (RxBool pressed) => HoldProgressButton(
                                         text: Text(
@@ -107,12 +115,12 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                         border: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
                                         disabled: pressed.value,
                                         onComplete: !pressed.value ? () async {
-                                            pressed.value = _dropdownStates[2] = true;
+                                            pressed.value = dropdownStates[2] = true;
                                             await deleteUselessEmails("CATEGORY_PROMOTIONS");
-                                            pressed.value = _dropdownStates[2] = false;
+                                            pressed.value = dropdownStates[2] = false;
                                         } : () {},
                                     ),
-                                    _dropdownStates[2].obs
+                                    dropdownStates[2].obs
                                 ),
                             ],
                         ),
@@ -125,10 +133,10 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
     @override
     Widget build(BuildContext context) 
     {
-        if(widget.disabled && _overlayEntry != null) 
+        if(widget.disabled && overlayEntry != null) 
         { 
-             _overlayEntry!.remove(); 
-             _overlayEntry = null;
+             overlayEntry!.remove(); 
+             overlayEntry = null;
         }
 
         return SizedBox(
@@ -136,6 +144,7 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
             width: 172,
             child: Row(
                 children: [
+                    //Delete blacklisted emails button.
                     SizedBox(
                         width: 150,
                         height: 35,
@@ -157,6 +166,8 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                         ),
                     ),
                     const SizedBox(width: 2),
+
+                    //Dropdown button.
                     Align(
                         alignment: Alignment.centerRight,
                         child: SizedBox(
@@ -174,16 +185,16 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                                             {
                                                 if(show.value == false)
                                                 {
-                                                    _animController.reverse();
-                                                    await Future.delayed(_animDuration);
-                                                    _overlayEntry!.remove();
-                                                    _overlayEntry = null;
+                                                    animController.reverse();
+                                                    await Future.delayed(animDuration);
+                                                    overlayEntry!.remove();
+                                                    overlayEntry = null;
                                                 }
                                                 else 
                                                 { 
-                                                    _overlayEntry = _createOverlay();
-                                                    Overlay.of(context)!.insert(_overlayEntry!);
-                                                    _animController.forward();
+                                                    overlayEntry = createOverlay();
+                                                    Overlay.of(context)!.insert(overlayEntry!);
+                                                    animController.forward();
                                                 }
                                             }
                                             //Throws error when dropdown button is spammed. Just ignore.
