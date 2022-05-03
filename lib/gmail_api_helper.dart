@@ -212,9 +212,9 @@ Future<void> unsubscribeEmails() async
             //This means that the url was cutoff. 
             if(_url[_url.length - 1] != "\"")
             {
-                _url += plain.split(_url)[1].split(" ")[0];
+                _url += plain.split(_url)[1].split("\"")[0] + "\"";
             }
-
+            
             url = _url.substring(0, _url.length - 1);
         }
 
