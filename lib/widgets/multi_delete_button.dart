@@ -20,7 +20,6 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
 {
     static const Duration _animDuration = Duration(milliseconds: 200);
 
-    OverlayEntry? _overlayEntry;
     late final AnimationController _animController = AnimationController(
         vsync: this,
         duration: _animDuration,
@@ -29,6 +28,9 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
         parent: _animController,
         curve: Curves.fastOutSlowIn
     );
+
+    OverlayEntry? _overlayEntry;
+    final List<bool> _dropdownStates = [false, false, false];
 
     Future<void> deleteUselessEmails(String labelId) async
     {
@@ -60,66 +62,57 @@ class MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvide
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                                SizedBox(
-                                    height: 35,
-                                    child: ObxValue(
-                                        (RxBool pressed) => HoldProgressButton(
-                                            text: Text(
-                                                pressed.value ? "Deleting..." : "Delete Social Emails", 
-                                                style: const TextStyle(color: Colors.white)
-                                            ),
-                                            buttonType: "text", color: Colors.red, 
-                                            height: 35, width: 172,
-                                            disabled: pressed.value,
-                                            onComplete: !pressed.value ? () async {
-                                                pressed.value = true;
-                                                await deleteUselessEmails("CATEGORY_SOCIAL");
-                                                pressed.value = false;
-                                            } : () {},
+                                ObxValue(
+                                    (RxBool pressed) => HoldProgressButton(
+                                        text: Text(
+                                            pressed.value ? "Deleting..." : "Delete Social Emails", 
+                                            style: const TextStyle(color: Colors.white)
                                         ),
-                                        false.obs
+                                        buttonType: "text", color: Colors.red, 
+                                        height: 35, width: 172,
+                                        disabled: pressed.value,
+                                        onComplete: !pressed.value ? () async {
+                                            pressed.value = _dropdownStates[0] = true;
+                                            await deleteUselessEmails("CATEGORY_SOCIAL");
+                                            pressed.value = _dropdownStates[0] = false;
+                                        } : () {},
                                     ),
+                                    _dropdownStates[0].obs
                                 ),
-                                SizedBox(
-                                    height: 35,
-                                    child: ObxValue(
-                                        (RxBool pressed) => HoldProgressButton(
-                                            text: Text(
-                                                pressed.value ? "Deleting..." : "Delete Update Emails", 
-                                                style: const TextStyle(color: Colors.white)
-                                            ),
-                                            buttonType: "text", color: Colors.red, 
-                                            height: 35, width: 172,
-                                            disabled: pressed.value,
-                                            onComplete: !pressed.value ? () async {
-                                                pressed.value = true;
-                                                await deleteUselessEmails("CATEGORY_UPDATES");
-                                                pressed.value = false;
-                                            } : () {},
+                                ObxValue(
+                                    (RxBool pressed) => HoldProgressButton(
+                                        text: Text(
+                                            pressed.value ? "Deleting..." : "Delete Update Emails", 
+                                            style: const TextStyle(color: Colors.white)
                                         ),
-                                        false.obs
+                                        buttonType: "text", color: Colors.red, 
+                                        height: 35, width: 172,
+                                        disabled: pressed.value,
+                                        onComplete: !pressed.value ? () async {
+                                            pressed.value = _dropdownStates[1] = true;
+                                            await deleteUselessEmails("CATEGORY_UPDATES");
+                                            pressed.value = _dropdownStates[1] = false;
+                                        } : () {},
                                     ),
+                                    _dropdownStates[1].obs
                                 ),
-                                SizedBox(
-                                    height: 35,
-                                    child: ObxValue(
-                                        (RxBool pressed) => HoldProgressButton(
-                                            text: Text(
-                                                pressed.value ? "Deleting..." : "Delete Promotion Emails", 
-                                                style: const TextStyle(color: Colors.white)
-                                            ),
-                                            buttonType: "text", color: Colors.red, 
-                                            height: 35, width: 172,
-                                            border: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
-                                            disabled: pressed.value,
-                                            onComplete: !pressed.value ? () async {
-                                                pressed.value = true;
-                                                await deleteUselessEmails("CATEGORY_PROMOTIONS");
-                                                pressed.value = false;
-                                            } : () {},
+                                ObxValue(
+                                    (RxBool pressed) => HoldProgressButton(
+                                        text: Text(
+                                            pressed.value ? "Deleting..." : "Delete Promotion Emails", 
+                                            style: const TextStyle(color: Colors.white)
                                         ),
-                                        false.obs
+                                        buttonType: "text", color: Colors.red, 
+                                        height: 35, width: 172,
+                                        border: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
+                                        disabled: pressed.value,
+                                        onComplete: !pressed.value ? () async {
+                                            pressed.value = _dropdownStates[2] = true;
+                                            await deleteUselessEmails("CATEGORY_PROMOTIONS");
+                                            pressed.value = _dropdownStates[2] = false;
+                                        } : () {},
                                     ),
+                                    _dropdownStates[2].obs
                                 ),
                             ],
                         ),
