@@ -22,6 +22,7 @@ dependencies:
   url_launcher: ^6.1.0
   json_serializable: ^6.1.6
   get: ^4.6.1
+  beautiful_soup_dart: ^0.2.0
   build_runner:
   path_provider:
   flutter_spinkit:

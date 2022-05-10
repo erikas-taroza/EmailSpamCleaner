@@ -1,3 +1,4 @@
+import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:googleapis/gmail/v1.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -200,22 +201,16 @@ Future<void> unsubscribeEmails() async
                 plain = utf8.decode(base64.decode(b64));
             }
 
-            //Parse the html code to find the unsubscribe url.
-            List<String> split = plain.split("nsubscribe");
-            //In case there is no unsubscribe link found.
-            if(split.length == 1) continue;
+            BeautifulSoup bs = BeautifulSoup(plain);
+            Bs4Element? href = bs.find(
+                "*", 
+                attrs: {"href": true},
+                string: RegExp("(unsubscribe)", caseSensitive: false)
+            );
 
-            RegExp regex = RegExp(r"(href)", caseSensitive: false);
-            String href = regex.allMatches(split[0]).last.group(0)!;
-            String _url = split[0].split("$href=\"").last.split(" ")[0];
-
-            //This means that the url was cutoff. 
-            if(_url[_url.length - 1] != "\"")
-            {
-                _url += plain.split(_url)[1].split("\"")[0] + "\"";
-            }
+            if(href == null || href.attributes["href"] == null) continue;
             
-            url = _url.substring(0, _url.length - 1);
+            url = href.attributes["href"]!;
         }
 
         if(url == "") return;
