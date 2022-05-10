@@ -116,7 +116,8 @@ class EmailsListView extends StatelessWidget
                                 //Display the emails in a list view.
                                 else
                                 {
-                                    if(emails.isEmpty) return Container();
+                                    if((emails.isEmpty || emails[0]!.isEmpty) && state.value == EmailViewState.found) 
+                                    { return const Expanded(child: Center(child: Text("No emails found."))); }
             
                                     if((state.value == EmailViewState.found || _canGoNext.value) && state.value != EmailViewState.none)
                                     {

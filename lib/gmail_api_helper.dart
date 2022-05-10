@@ -67,6 +67,13 @@ Future<List<Message>> readInboxEmails(String pageToken) async
         labelIds: ["INBOX"], 
         pageToken: pageToken
     );
+    
+    if(emails.messages == null)
+    {
+        messages["last"] = [];
+        return [];
+    }
+
     List<Message> ids = emails.messages!;
     List<Message> _messages = [];
 
