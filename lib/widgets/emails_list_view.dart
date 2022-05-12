@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -131,7 +133,20 @@ class EmailsListView extends StatelessWidget
                                             ),
                                         );
                                     }
-                                    else { return Expanded(child: Container()); }
+                                    else { 
+                                        return Expanded(
+                                            child: SizedBox(
+                                                width: 200,
+                                                height: 200,
+                                                child: Center(
+                                                    child: Image.asset(
+                                                        "assets/email_cleaner_logo_plain.png",
+                                                        color: Colors.grey[300],
+                                                    ),
+                                                )
+                                            )
+                                        );
+                                    }
                                 }
                             }
                         ),
