@@ -75,6 +75,7 @@ class _MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvid
                                         buttonType: "text", color: Colors.red, 
                                         height: 35, width: 172,
                                         disabled: pressed.value,
+                                        holdTime: 3,
                                         onComplete: !pressed.value ? () async {
                                             pressed.value = dropdownStates[0] = true;
                                             await deleteUselessEmails("CATEGORY_SOCIAL");
@@ -94,6 +95,7 @@ class _MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvid
                                         buttonType: "text", color: Colors.red, 
                                         height: 35, width: 172,
                                         disabled: pressed.value,
+                                        holdTime: 3,
                                         onComplete: !pressed.value ? () async {
                                             pressed.value = dropdownStates[1] = true;
                                             await deleteUselessEmails("CATEGORY_UPDATES");
@@ -114,6 +116,7 @@ class _MultiDeleteButtonState extends State<MultiDeleteButton> with TickerProvid
                                         height: 35, width: 172,
                                         border: const BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
                                         disabled: pressed.value,
+                                        holdTime: 3,
                                         onComplete: !pressed.value ? () async {
                                             pressed.value = dropdownStates[2] = true;
                                             await deleteUselessEmails("CATEGORY_PROMOTIONS");

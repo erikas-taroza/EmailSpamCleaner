@@ -14,6 +14,7 @@ class HoldProgressButton extends StatefulWidget
         this.disabled = false,
         this.border = BorderRadius.zero,
         this.color = Colors.blue,
+        this.holdTime = 1,
 
         Key? key
     }) : super(key: key);
@@ -26,6 +27,7 @@ class HoldProgressButton extends StatefulWidget
     final Text text;
     final BorderRadius border;
     final void Function() onComplete;
+    final int holdTime;
 
     @override
     State<StatefulWidget> createState() => _HoldProgressButtonState();
@@ -76,7 +78,7 @@ class _HoldProgressButtonState extends State<HoldProgressButton>
             onLongPressStart: (_) {
                 if(widget.disabled) return;
                 setState(() {
-                    animDuration = 1000;
+                    animDuration = widget.holdTime * 1000;
                     holding = true;
                 });
             },
